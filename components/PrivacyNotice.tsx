@@ -44,7 +44,7 @@ export function PrivacyNotice() {
               <div className="flex-1 pr-6">
                 <h3 className="text-lg font-semibold mb-2 text-gray-900">Privacy First</h3>
                 <p className="text-sm text-gray-600 mb-4">
-                  Your video is processed in real-time and never stored. All analysis happens securely through OpenAI's API.
+                  Your video is processed in real-time and never stored. All analysis happens securely through OpenAI&apos;s API.
                 </p>
 
                 <button

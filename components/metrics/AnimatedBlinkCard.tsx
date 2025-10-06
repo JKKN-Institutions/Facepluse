@@ -14,7 +14,7 @@ export function AnimatedBlinkCard({ blinks }: { blinks: number }) {
       setTimeout(() => setIsBlinking(false), 200)
     }
     setPrevBlinks(blinks)
-  }, [blinks])
+  }, [blinks, prevBlinks])
 
   return (
     <motion.div

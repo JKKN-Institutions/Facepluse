@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server'
 // We now use face-api.js which runs entirely in the browser (client-side)
 // See: hooks/useFaceAnalysis.ts for the face-api.js implementation
 
-export async function POST(request: Request) {
+export async function POST() {
   return NextResponse.json(
     {
       message: 'This API endpoint is deprecated. Face analysis now runs client-side using face-api.js',

@@ -12,6 +12,7 @@
     "@google-cloud/vision": "^5.3.3",
     "canvas-confetti": "^1.9.3",
     "clsx": "^2.1.1",
+    "encoding": "^0.1.13",
     "face-api.js": "^0.22.2",
     "framer-motion": "^12.23.22",
     "lucide-react": "^0.544.0",

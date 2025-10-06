@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
-import { Sparkles, Heart, Zap, Cloud, Star } from 'lucide-react'
+import { Sparkles, Zap, Cloud, Star } from 'lucide-react'
 
 interface AnimatedEmotionProps {
   emotion: string
@@ -71,7 +71,7 @@ export function AnimatedEmotion({ emotion, confidence }: AnimatedEmotionProps) {
 
       setTimeout(() => setParticles([]), 2000)
     }
-  }, [emotion, confidence])
+  }, [emotion, confidence, config.particles])
 
   // Get border color dynamically
   const getBorderColor = () => {

@@ -1,7 +1,6 @@
 'use client'
 
 import { useLeaderboard } from '@/hooks/useLeaderboard'
-import { StatusBadge } from './ui/StatusBadge'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { Trophy } from 'lucide-react'
