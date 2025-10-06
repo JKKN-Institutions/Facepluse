@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { AlertCircle, CheckCircle, Loader2, Camera as CameraIcon } from 'lucide-react'
 
 interface CameraProps {
-  videoRef: RefObject<HTMLVideoElement>
+  videoRef: RefObject<HTMLVideoElement | null>
   loading: boolean
   error: string | null
   analysis: FaceAnalysis | null
