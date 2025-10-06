@@ -4,7 +4,7 @@ import { useState, useEffect, RefObject, useRef } from 'react'
 import { FaceAnalysis } from '@/types/face'
 import * as faceapi from 'face-api.js'
 
-export function useFaceAnalysis(videoRef: RefObject<HTMLVideoElement>) {
+export function useFaceAnalysis(videoRef: RefObject<HTMLVideoElement | null>) {
   const [analysis, setAnalysis] = useState<FaceAnalysis | null>(null)
   const [analyzing, setAnalyzing] = useState(false)
   const [blinkCount, setBlinkCount] = useState(0)
