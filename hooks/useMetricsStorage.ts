@@ -11,7 +11,7 @@ export function useMetricsStorage(
   videoRef: RefObject<HTMLVideoElement | null>
 ) {
   const [lastMetric, setLastMetric] = useState<Metric | null>(null);
-  const saveIntervalRef = useRef<NodeJS.Timeout>();
+  const saveIntervalRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   // Function to capture current video frame
   const captureFrame = (): string | null => {

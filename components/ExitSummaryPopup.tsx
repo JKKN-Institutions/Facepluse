@@ -33,7 +33,6 @@ export function ExitSummaryPopup({
   blinkCount = 0
 }: ExitSummaryPopupProps) {
   const [sessionSummary, setSessionSummary] = useState<SessionSummary | null>(null);
-  const [loading, setLoading] = useState(true);
 
   // Fetch real-time session summary
   useEffect(() => {
@@ -41,8 +40,6 @@ export function ExitSummaryPopup({
 
     const fetchSessionSummary = async () => {
       try {
-        setLoading(true);
-
         // Fetch all metrics for this session
         const { data: metricsData } = await supabase
           .from('metrics')
@@ -77,8 +74,6 @@ export function ExitSummaryPopup({
         }
       } catch (error) {
         console.error('Error fetching session summary:', error);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -340,7 +335,7 @@ function StatCard({
   value,
   color
 }: {
-  icon: any;
+  icon: React.ComponentType<{ className?: string }>;
   label: string;
   value: string;
   color: string;

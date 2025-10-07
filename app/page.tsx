@@ -22,7 +22,7 @@ export default function Home() {
   // Supabase integration
   const { sessionId, loading: sessionLoading, sessionStart } = useSupabaseSession()
   const { lastMetric } = useMetricsStorage(sessionId, analysis, blinkCount, videoRef)
-  const { facePresent, showExitPopup, setShowExitPopup, lastFaceImage } = useFaceDetection(analysis, videoRef)
+  const { showExitPopup, setShowExitPopup, lastFaceImage } = useFaceDetection(analysis, videoRef)
   const { entries: leaderboard } = useLeaderboardSupabase()
 
   // Session duration tracking

@@ -8,7 +8,6 @@ import {
   History,
   Trophy,
   ChevronLeft,
-  ChevronRight,
   Activity,
   Sparkles,
 } from 'lucide-react';

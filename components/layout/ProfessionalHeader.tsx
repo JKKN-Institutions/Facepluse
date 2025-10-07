@@ -97,7 +97,7 @@ function StatCard({
   label,
   color = 'gray'
 }: {
-  icon: any;
+  icon: React.ComponentType<{ className?: string }>;
   value: string;
   label: string;
   color?: 'gray' | 'green' | 'yellow';
@@ -132,7 +132,7 @@ function StatusBadge({
   variant = 'primary',
   pulse = false
 }: {
-  icon: any;
+  icon: React.ComponentType<{ className?: string }>;
   label: string;
   variant?: 'success' | 'primary';
   pulse?: boolean;

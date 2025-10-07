@@ -10,7 +10,7 @@ export function useFaceDetection(
   const [facePresent, setFacePresent] = useState(true);
   const [showExitPopup, setShowExitPopup] = useState(false);
   const [lastFaceImage, setLastFaceImage] = useState<string | null>(null);
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const lastCaptureRef = useRef<string | null>(null);
 
   // Function to capture current video frame

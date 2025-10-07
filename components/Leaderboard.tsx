@@ -2,16 +2,15 @@
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
-import { Trophy, ChevronDown, ChevronUp } from 'lucide-react'
+import { Trophy, ChevronDown } from 'lucide-react'
 import { useState, useMemo } from 'react'
 import { LeaderboardEntry } from '@/lib/supabase/client'
 
 interface LeaderboardProps {
-  currentScore?: number
   entries?: LeaderboardEntry[]
 }
 
-export function Leaderboard({ currentScore, entries = [] }: LeaderboardProps) {
+export function Leaderboard({ entries = [] }: LeaderboardProps) {
   // Map Supabase entries to component format
   const leaderboard = useMemo(() => {
     return entries.map((entry) => ({
