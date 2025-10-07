@@ -1,16 +1,29 @@
 'use client'
 
-import { useLeaderboard } from '@/hooks/useLeaderboard'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
-import { Trophy } from 'lucide-react'
+import { Trophy, ChevronDown, ChevronUp } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { LeaderboardEntry } from '@/lib/supabase/client'
 
 interface LeaderboardProps {
   currentScore?: number
+  entries?: LeaderboardEntry[]
 }
 
-export function Leaderboard({ currentScore }: LeaderboardProps) {
-  const { leaderboard, loading } = useLeaderboard(currentScore)
+export function Leaderboard({ currentScore, entries = [] }: LeaderboardProps) {
+  // Map Supabase entries to component format
+  const leaderboard = useMemo(() => {
+    return entries.map((entry) => ({
+      id: entry.id,
+      score: entry.smile_percentage,
+      timestamp: entry.created_at,
+      isCurrentUser: false, // Could be enhanced with user tracking
+    }))
+  }, [entries])
+
+  const loading = false
+  const [isCollapsed, setIsCollapsed] = useState(false)
 
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp)
@@ -32,31 +45,52 @@ export function Leaderboard({ currentScore }: LeaderboardProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
-      className="w-full glass-premium p-4 max-h-[340px] overflow-hidden"
+      className="w-full glass-premium p-3 md:p-4 overflow-hidden"
     >
-      {/* Premium Header */}
-      <div className="flex items-center justify-between mb-4 pb-3 border-b-2 border-gradient-to-r from-emerald-200 to-teal-200">
-        <h3 className="text-lg font-bold flex items-center gap-2 text-gray-800">
-          <div className="w-8 h-8 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-xl flex items-center justify-center shadow-gold-lg">
-            <Trophy className="w-5 h-5 text-white" />
+      {/* Premium Header - Responsive */}
+      <button
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className="w-full flex items-center justify-between mb-3 md:mb-4 pb-2 md:pb-3 border-b-2 border-gradient-to-r from-emerald-200 to-teal-200 lg:cursor-default"
+      >
+        <h3 className="text-base md:text-lg font-bold flex items-center gap-2 text-gray-800">
+          <div className="w-7 h-7 md:w-8 md:h-8 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-lg md:rounded-xl flex items-center justify-center shadow-gold-lg">
+            <Trophy className="w-4 h-4 md:w-5 md:h-5 text-white" />
           </div>
           <span>Top Smiles</span>
         </h3>
-        <div className="flex items-center gap-2 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200/50">
-          <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-          <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">LIVE</span>
-        </div>
-      </div>
-
-      {/* Premium List */}
-      <div className="space-y-2 overflow-y-auto max-h-[260px] pr-2 scrollbar-thin">
-        {leaderboard.length === 0 ? (
-          <div className="text-center py-12 bg-gray-50/50 rounded-xl">
-            <Trophy className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-500 font-semibold">No entries yet</p>
-            <p className="text-sm text-gray-400 mt-1">Be the first to smile!</p>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 md:gap-2 bg-emerald-50 px-2 py-1 md:px-3 md:py-1.5 rounded-full border border-emerald-200/50">
+            <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-emerald-500 rounded-full animate-pulse" />
+            <span className="text-[10px] md:text-xs font-bold text-emerald-700 uppercase tracking-wider">LIVE</span>
           </div>
-        ) : (
+          {/* Collapse Toggle - Mobile Only */}
+          <motion.div
+            animate={{ rotate: isCollapsed ? 0 : 180 }}
+            className="lg:hidden"
+          >
+            <ChevronDown className="w-5 h-5 text-gray-600" />
+          </motion.div>
+        </div>
+      </button>
+
+      {/* Premium List - Collapsible on Mobile */}
+      <AnimatePresence>
+        {!isCollapsed && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="overflow-hidden lg:!opacity-100 lg:!h-auto"
+          >
+            <div className="space-y-2 overflow-y-auto max-h-[220px] md:max-h-[260px] pr-2 scrollbar-thin">
+              {leaderboard.length === 0 ? (
+                <div className="text-center py-8 md:py-12 bg-gray-50/50 rounded-xl">
+                  <Trophy className="w-10 h-10 md:w-12 md:h-12 text-gray-300 mx-auto mb-2 md:mb-3" />
+                  <p className="text-sm md:text-base text-gray-500 font-semibold">No entries yet</p>
+                  <p className="text-xs md:text-sm text-gray-400 mt-1">Be the first to smile!</p>
+                </div>
+              ) : (
           leaderboard.map((entry, index) => {
             // Premium rank badge styling
             const getRankBadge = () => {
@@ -85,71 +119,74 @@ export function Leaderboard({ currentScore }: LeaderboardProps) {
               return 'bg-white/60 border border-gray-200/50'
             }
 
-            return (
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.05, type: "spring", stiffness: 200 }}
-                key={entry.id}
-                className={cn(
-                  'p-3 rounded-2xl transition-all duration-300',
-                  getCardBg(),
-                  index < 3 && 'shadow-md hover:shadow-lg',
-                  entry.isCurrentUser && 'ring-2 ring-emerald-400/50'
-                )}
-              >
-                <div className="flex items-center gap-3">
-                  {/* Premium Rank Badge */}
+                return (
                   <motion.div
-                    whileHover={{ scale: 1.1, rotate: 5 }}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05, type: "spring", stiffness: 200 }}
+                    key={entry.id}
                     className={cn(
-                      'flex items-center justify-center font-black shrink-0',
-                      getRankBadge()
+                      'p-2 md:p-3 rounded-xl md:rounded-2xl transition-all duration-300',
+                      getCardBg(),
+                      index < 3 && 'shadow-md hover:shadow-lg',
+                      entry.isCurrentUser && 'ring-2 ring-emerald-400/50'
                     )}
                   >
-                    {index + 1}
-                  </motion.div>
-
-                  <div className="flex-1 min-w-0">
-                    {/* Premium Score Bar - Thicker */}
-                    <div className="bg-gray-200/80 rounded-full h-2 overflow-hidden mb-2 border border-gray-300/50">
+                    <div className="flex items-center gap-2 md:gap-3">
+                      {/* Premium Rank Badge - Responsive */}
                       <motion.div
-                        className={`h-full bg-gradient-to-r ${getScoreGradient()} relative overflow-hidden`}
-                        initial={{ width: 0 }}
-                        animate={{ width: `${entry.score}%` }}
-                        transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+                        whileHover={{ scale: 1.1, rotate: 5 }}
+                        className={cn(
+                          'flex items-center justify-center font-black shrink-0',
+                          getRankBadge()
+                        )}
                       >
-                        {/* Shimmer Effect */}
-                        <motion.div
-                          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent"
-                          animate={{
-                            x: ['-100%', '200%'],
-                          }}
-                          transition={{
-                            duration: 2,
-                            repeat: Infinity,
-                            ease: "linear"
-                          }}
-                        />
+                        {index + 1}
                       </motion.div>
-                    </div>
 
-                    {/* Details - Better Typography */}
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="font-bold text-gray-800">
-                        {entry.score}% smile
-                      </span>
-                      <span className="text-xs text-gray-500 font-medium">
-                        {formatTimestamp(entry.timestamp)}
-                      </span>
+                      <div className="flex-1 min-w-0">
+                        {/* Premium Score Bar - Responsive */}
+                        <div className="bg-gray-200/80 rounded-full h-1.5 md:h-2 overflow-hidden mb-1.5 md:mb-2 border border-gray-300/50">
+                          <motion.div
+                            className={`h-full bg-gradient-to-r ${getScoreGradient()} relative overflow-hidden`}
+                            initial={{ width: 0 }}
+                            animate={{ width: `${entry.score}%` }}
+                            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+                          >
+                            {/* Shimmer Effect */}
+                            <motion.div
+                              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent"
+                              animate={{
+                                x: ['-100%', '200%'],
+                              }}
+                              transition={{
+                                duration: 2,
+                                repeat: Infinity,
+                                ease: "linear"
+                              }}
+                            />
+                          </motion.div>
+                        </div>
+
+                        {/* Details - Responsive */}
+                        <div className="flex justify-between items-center text-xs md:text-sm">
+                          <span className="font-bold text-gray-800">
+                            {entry.score}% smile
+                          </span>
+                          <span className="text-[10px] md:text-xs text-gray-500 font-medium">
+                            {formatTimestamp(entry.timestamp)}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              </motion.div>
-            )
-          })
+                  </motion.div>
+                )
+              })
+              )}
+            </div>
+          </motion.div>
         )}
-      </div>
+      </AnimatePresence>
     </motion.div>
   )
 }

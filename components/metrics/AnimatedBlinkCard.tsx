@@ -20,16 +20,16 @@ export function AnimatedBlinkCard({ blinks }: { blinks: number }) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -4, scale: 1.02 }}
+      whileHover={{ y: -2, scale: 1.02 }}
       transition={{ duration: 0.3 }}
-      className="relative glass-default p-3 text-center"
+      className="relative glass-default p-2 md:p-3 text-center"
     >
-      {/* Premium Icon Badge - Larger */}
+      {/* Premium Icon Badge - Responsive */}
       <motion.div
         animate={{
           scale: isBlinking ? [1, 0.85, 1] : 1,
         }}
-        className="w-10 h-10 mx-auto mb-2 bg-gradient-to-br from-emerald-100 via-emerald-200 to-emerald-300 rounded-xl flex items-center justify-center shadow-md border border-emerald-300/50"
+        className="w-8 h-8 md:w-10 md:h-10 mx-auto mb-1.5 md:mb-2 bg-gradient-to-br from-emerald-100 via-emerald-200 to-emerald-300 rounded-lg md:rounded-xl flex items-center justify-center shadow-md border border-emerald-300/50"
       >
         <AnimatePresence mode="wait">
           {isBlinking ? (
@@ -40,7 +40,7 @@ export function AnimatedBlinkCard({ blinks }: { blinks: number }) {
               exit={{ scaleY: 1 }}
               transition={{ duration: 0.1 }}
             >
-              <EyeOff className="w-5 h-5 text-emerald-600" />
+              <EyeOff className="w-4 h-4 md:w-5 md:h-5 text-emerald-600" />
             </motion.div>
           ) : (
             <motion.div
@@ -49,35 +49,35 @@ export function AnimatedBlinkCard({ blinks }: { blinks: number }) {
               animate={{ scale: 1 }}
               transition={{ type: "spring", stiffness: 200 }}
             >
-              <Eye className="w-5 h-5 text-emerald-600" />
+              <Eye className="w-4 h-4 md:w-5 md:h-5 text-emerald-600" />
             </motion.div>
           )}
         </AnimatePresence>
       </motion.div>
 
-      {/* Label */}
-      <div className="text-[10px] font-bold text-emerald-700 uppercase tracking-widest mb-1.5">Blinks</div>
+      {/* Label - Responsive */}
+      <div className="text-[9px] md:text-[10px] font-bold text-emerald-700 uppercase tracking-widest mb-1 md:mb-1.5">Blinks</div>
 
-      {/* Count - Larger */}
+      {/* Count - Responsive */}
       <motion.div
         key={blinks}
         initial={{ scale: 1.5, color: '#10B981' }}
         animate={{ scale: 1, color: '#1F2937' }}
         transition={{ type: "spring", stiffness: 200, damping: 15 }}
-        className="text-2xl font-bold text-gray-900 mb-1.5"
+        className="text-xl md:text-2xl font-bold text-gray-900 mb-1 md:mb-1.5"
       >
         {blinks}
       </motion.div>
 
-      {/* Active Indicator */}
+      {/* Active Indicator - Responsive */}
       {blinks > 0 && (
         <motion.div
           initial={{ opacity: 0, scale: 0 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
-          className="inline-flex items-center gap-1.5 text-[10px] text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full font-semibold border border-emerald-200/50"
+          className="inline-flex items-center gap-1 md:gap-1.5 text-[9px] md:text-[10px] text-emerald-600 bg-emerald-50 px-1.5 py-0.5 md:px-2 md:py-1 rounded-full font-semibold border border-emerald-200/50"
         >
-          <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+          <span className="w-1 h-1 md:w-1.5 md:h-1.5 bg-emerald-500 rounded-full animate-pulse" />
           <span>Active</span>
         </motion.div>
       )}

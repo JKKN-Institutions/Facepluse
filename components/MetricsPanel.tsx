@@ -18,7 +18,7 @@ export function MetricsPanel({ analysis, blinkCount }: MetricsPanelProps) {
   const headPose = analysis?.head_pose || 'center'
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 md:space-y-4">
       {/* Animated Smile Card */}
       <AnimatedSmileCard percentage={smilePercentage} />
 
@@ -28,8 +28,8 @@ export function MetricsPanel({ analysis, blinkCount }: MetricsPanelProps) {
         confidence={emotionConfidence}
       />
 
-      {/* Activity Grid - Better spacing */}
-      <div className="grid grid-cols-2 gap-3">
+      {/* Activity Grid - Responsive spacing */}
+      <div className="grid grid-cols-2 gap-2 md:gap-3">
         <AnimatedBlinkCard blinks={blinkCount} />
         <AnimatedHeadPose pose={headPose} />
       </div>

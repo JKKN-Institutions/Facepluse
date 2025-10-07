@@ -67,18 +67,17 @@ export function useFaceAnalysis(videoRef: RefObject<HTMLVideoElement | null>) {
       const rightEAR = getEyeAspectRatio(rightEye)
       const avgEAR = (leftEAR + rightEAR) / 2
 
-      // EAR threshold for blink detection (increased sensitivity)
-      const EAR_THRESHOLD = 0.25
+      // EAR threshold for blink detection (increased for better sensitivity)
+      const EAR_THRESHOLD = 0.23
       const currentEyeState = avgEAR < EAR_THRESHOLD ? 'closed' : 'open'
 
-      // Require 2 consecutive frames to confirm blink
+      // Require at least 1 frame to confirm blink (100ms at current interval)
       if (currentEyeState === 'closed') {
         blinkFrameCount.current++
       } else {
         // Eyes opened - check if we had a blink
-        if (blinkFrameCount.current >= 2 && lastEyeState.current === 'open') {
+        if (blinkFrameCount.current >= 1 && lastEyeState.current === 'closed') {
           setBlinkCount((prev) => prev + 1)
-          console.log('Blink detected! Total:', blinkCount + 1)
         }
         blinkFrameCount.current = 0
       }
@@ -183,14 +182,6 @@ export function useFaceAnalysis(videoRef: RefObject<HTMLVideoElement | null>) {
             blink_detected: blinkDetected,
             head_pose: headPose,
           })
-
-          console.log('Face analysis:', {
-            smile: smilePercentage,
-            emotion,
-            age,
-            headPose,
-            blink: blinkDetected,
-          })
         } else {
           // No face detected
           setAnalysis({
@@ -209,7 +200,7 @@ export function useFaceAnalysis(videoRef: RefObject<HTMLVideoElement | null>) {
       } finally {
         setAnalyzing(false)
       }
-    }, 500) // Analyze every 500ms (faster than before)
+    }, 100) // Analyze every 100ms for faster blink detection
 
     return () => clearInterval(interval)
   }, [videoRef, analyzing, modelsLoaded])

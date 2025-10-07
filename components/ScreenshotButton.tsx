@@ -62,23 +62,23 @@ export function ScreenshotButton() {
     <motion.button
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.95 }}
-      className="fixed bottom-8 left-8 w-16 h-16 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 shadow-lg flex items-center justify-center z-50"
+      className="fixed bottom-4 right-4 md:bottom-6 md:right-6 lg:bottom-8 lg:right-[26rem] w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 shadow-lg flex items-center justify-center z-50"
       onClick={handleScreenshot}
       disabled={capturing}
     >
-      {/* Pulsing Ring */}
+      {/* Pulsing Ring - Responsive */}
       <span className="absolute inset-0 rounded-full bg-green-500 animate-ping opacity-75" />
 
-      {/* Icon */}
+      {/* Icon - Responsive */}
       <motion.div
         className="relative z-10"
         animate={capturing ? { rotate: 360 } : {}}
         transition={{ duration: 1, repeat: capturing ? Infinity : 0 }}
       >
         {success ? (
-          <Check className="w-6 h-6 text-white" />
+          <Check className="w-4 h-4 md:w-5 md:h-5 text-white" />
         ) : (
-          <Camera className="w-6 h-6 text-white" />
+          <Camera className="w-4 h-4 md:w-5 md:h-5 text-white" />
         )}
       </motion.div>
     </motion.button>
