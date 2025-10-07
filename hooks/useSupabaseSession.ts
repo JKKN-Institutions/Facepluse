@@ -30,6 +30,8 @@ export function useSupabaseSession() {
 
   const createSession = async () => {
     try {
+      console.log('🔵 Creating new session...');
+
       const { data, error } = await supabase
         .from('sessions')
         .insert({
@@ -39,11 +41,22 @@ export function useSupabaseSession() {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('🔴 Session creation error:', error);
+        throw error;
+      }
+
+      console.log('🟢 Session created successfully:', { id: data.id, created_at: data.created_at });
       setSessionId(data.id);
       setSessionStart(new Date(data.created_at));
-    } catch (error) {
-      console.error('Error creating session:', error);
+    } catch (error: any) {
+      console.error('🔴 Error creating session (full error):', {
+        error,
+        message: error?.message,
+        details: error?.details,
+        hint: error?.hint,
+        code: error?.code
+      });
     } finally {
       setLoading(false);
     }

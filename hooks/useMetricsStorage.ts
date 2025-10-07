@@ -39,6 +39,12 @@ export function useMetricsStorage(
 
   const saveMetric = async (sessionId: string, analysis: FaceAnalysis, blinkCount: number) => {
     try {
+      console.log('🔵 Attempting to save metric:', {
+        sessionId,
+        emotion: analysis.emotion,
+        smile: analysis.smile_percentage
+      });
+
       const { data, error } = await supabase
         .from('metrics')
         .insert({
@@ -54,14 +60,19 @@ export function useMetricsStorage(
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('🔴 Supabase error saving metric:', error);
+        throw error;
+      }
+
+      console.log('🟢 Metric saved successfully:', data);
       setLastMetric(data);
 
       // Update leaderboard if high smile
       if (analysis.smile_percentage >= 70) {
         const screenshot = captureFrame();
 
-        await supabase
+        const { error: leaderboardError } = await supabase
           .from('leaderboard')
           .insert({
             session_id: sessionId,
@@ -69,12 +80,22 @@ export function useMetricsStorage(
             emotion: analysis.emotion,
             screenshot_url: screenshot,
           });
+
+        if (leaderboardError) {
+          console.error('🟡 Leaderboard save failed (non-critical):', leaderboardError);
+        }
       }
 
       // Return the saved metric data
       return data;
-    } catch (error) {
-      console.error('Error saving metric:', error);
+    } catch (error: any) {
+      console.error('🔴 Error saving metric (full error):', {
+        error,
+        message: error?.message,
+        details: error?.details,
+        hint: error?.hint,
+        code: error?.code
+      });
       return null;
     }
   };

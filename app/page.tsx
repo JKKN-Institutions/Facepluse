@@ -19,6 +19,7 @@ import { useConfetti } from '@/components/Confetti'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { LogOut } from 'lucide-react'
+import { Metric } from '@/lib/supabase/client'
 
 export default function Home() {
   const { videoRef, loading, error } = useCamera()
@@ -45,7 +46,7 @@ export default function Home() {
 
   // Popup state
   const [showCapturePopup, setShowCapturePopup] = useState(false)
-  const [capturedMetric, setCapturedMetric] = useState(null)
+  const [capturedMetric, setCapturedMetric] = useState<Metric | null>(null)
   const [capturedImage, setCapturedImage] = useState<string | null>(null)
 
   // Toast notification state
@@ -195,7 +196,7 @@ export default function Home() {
         blink_count: blinkCount,
         head_pose: analysis.head_pose,
         face_detected: analysis.face_detected,
-      }
+      } as Metric
 
       setCapturedMetric(fallbackMetric)
 
@@ -348,10 +349,10 @@ export default function Home() {
 
   return (
     <DashboardLayout>
-        {/* New Vertical Layout */}
-        <div className="h-full flex flex-col overflow-hidden">
-          {/* Top Section: Camera + Compact Leaderboard */}
-          <div className="flex-1 overflow-y-auto lg:pr-96 relative z-0">
+        {/* Responsive Layout: Vertical on mobile/tablet, horizontal on desktop */}
+        <div className="h-full flex flex-col lg:flex-row overflow-hidden">
+          {/* Camera Section - Takes full width on mobile/tablet, scrollable */}
+          <div className="flex-1 overflow-y-auto relative z-0">
             <div className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8 space-y-6">
               {/* Captured Emotions Indicator */}
               {capturedEmotions.length > 0 && (
@@ -421,8 +422,15 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Bottom/Side Section: Metrics Panel - Fixed on Desktop */}
-          <div className="lg:fixed lg:right-0 lg:top-0 lg:bottom-0 lg:w-96 bg-gradient-to-br from-white/80 to-emerald-50/60 backdrop-blur-lg border-t-2 lg:border-l-2 lg:border-t-0 border-emerald-200/50 overflow-y-auto scrollbar-thin shadow-2xl z-50">
+          {/* Metrics Panel - Bottom on mobile/tablet, right sidebar on desktop */}
+          <div className="
+            w-full lg:w-96
+            flex-shrink-0
+            bg-gradient-to-br from-white/80 to-emerald-50/60 backdrop-blur-lg
+            border-t-2 lg:border-l-2 lg:border-t-0 border-emerald-200/50
+            overflow-y-auto scrollbar-thin shadow-2xl
+            z-10
+          ">
             <div className="p-4 md:p-6 space-y-3 md:space-y-4">
               <MetricsPanel analysis={analysis} blinkCount={blinkCount} />
             </div>

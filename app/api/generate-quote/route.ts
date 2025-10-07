@@ -10,8 +10,11 @@ const quoteCache = new Map<string, { quote: string; timestamp: number }>();
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 export async function POST(request: Request) {
+  let emotion: string = '';
+
   try {
-    const { emotion } = await request.json();
+    const body = await request.json();
+    emotion = body.emotion;
 
     if (!emotion) {
       return NextResponse.json({ error: 'Emotion is required' }, { status: 400 });
