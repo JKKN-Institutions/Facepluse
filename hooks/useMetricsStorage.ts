@@ -8,7 +8,8 @@ export function useMetricsStorage(
   sessionId: string | null,
   analysis: FaceAnalysis | null,
   blinkCount: number,
-  videoRef: RefObject<HTMLVideoElement | null>
+  videoRef: RefObject<HTMLVideoElement | null>,
+  enableContinuousStorage: boolean = false
 ) {
   const [lastMetric, setLastMetric] = useState<Metric | null>(null);
   const saveIntervalRef = useRef<NodeJS.Timeout | undefined>(undefined);
@@ -35,21 +36,6 @@ export function useMetricsStorage(
       return null;
     }
   };
-
-  useEffect(() => {
-    if (!sessionId || !analysis) return;
-
-    // Save metrics every 2 seconds
-    saveIntervalRef.current = setInterval(() => {
-      saveMetric(sessionId, analysis, blinkCount);
-    }, 2000);
-
-    return () => {
-      if (saveIntervalRef.current) {
-        clearInterval(saveIntervalRef.current);
-      }
-    };
-  }, [sessionId, analysis, blinkCount]);
 
   const saveMetric = async (sessionId: string, analysis: FaceAnalysis, blinkCount: number) => {
     try {
@@ -84,8 +70,12 @@ export function useMetricsStorage(
             screenshot_url: screenshot,
           });
       }
+
+      // Return the saved metric data
+      return data;
     } catch (error) {
       console.error('Error saving metric:', error);
+      return null;
     }
   };
 
@@ -107,5 +97,43 @@ export function useMetricsStorage(
     }
   };
 
-  return { lastMetric, getLastMetric };
+  const captureOnce = async () => {
+    if (!sessionId || !analysis) return null;
+    return await saveMetric(sessionId, analysis, blinkCount);
+  };
+
+  // Continuous metric storage (every 3 seconds when face detected)
+  useEffect(() => {
+    if (!enableContinuousStorage || !sessionId) {
+      // Clean up if disabled
+      if (saveIntervalRef.current) {
+        clearInterval(saveIntervalRef.current);
+        saveIntervalRef.current = undefined;
+      }
+      return;
+    }
+
+    // Clear any existing interval
+    if (saveIntervalRef.current) {
+      clearInterval(saveIntervalRef.current);
+    }
+
+    // Save metrics every 3 seconds
+    console.log('✅ Continuous metric storage enabled for session:', sessionId);
+    saveIntervalRef.current = setInterval(() => {
+      if (analysis?.face_detected) {
+        console.log('💾 Saving metric - Smile:', analysis.smile_percentage, 'Emotion:', analysis.emotion);
+        saveMetric(sessionId, analysis, blinkCount);
+      }
+    }, 3000);
+
+    return () => {
+      if (saveIntervalRef.current) {
+        clearInterval(saveIntervalRef.current);
+        saveIntervalRef.current = undefined;
+      }
+    };
+  }, [enableContinuousStorage, sessionId, analysis, blinkCount]);
+
+  return { lastMetric, getLastMetric, captureOnce };
 }

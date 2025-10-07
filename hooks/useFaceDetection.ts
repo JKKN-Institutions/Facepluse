@@ -13,6 +13,25 @@ export function useFaceDetection(
   const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const lastCaptureRef = useRef<string | null>(null);
 
+  // Function to manually trigger exit popup
+  const manualEndSession = () => {
+    // Capture current frame if available
+    const capturedImage = captureFrame();
+    if (capturedImage) {
+      setLastFaceImage(capturedImage);
+    } else if (lastCaptureRef.current) {
+      setLastFaceImage(lastCaptureRef.current);
+    }
+
+    // Clear any pending timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    // Show exit popup immediately
+    setShowExitPopup(true);
+  };
+
   // Function to capture current video frame
   const captureFrame = () => {
     if (!videoRef?.current) return null;
@@ -59,14 +78,14 @@ export function useFaceDetection(
     } else {
       setFacePresent(false);
 
-      // Show popup after 3 seconds of no face
+      // Show popup after 1.5 seconds of no face (faster response)
       timeoutRef.current = setTimeout(() => {
         // Use the last captured image when showing popup
         if (lastCaptureRef.current) {
           setLastFaceImage(lastCaptureRef.current);
         }
         setShowExitPopup(true);
-      }, 3000);
+      }, 1500);
     }
 
     return () => {
@@ -76,5 +95,5 @@ export function useFaceDetection(
     };
   }, [analysis?.face_detected]);
 
-  return { facePresent, showExitPopup, setShowExitPopup, lastFaceImage };
+  return { facePresent, showExitPopup, setShowExitPopup, lastFaceImage, manualEndSession };
 }

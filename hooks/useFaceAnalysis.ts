@@ -182,8 +182,18 @@ export function useFaceAnalysis(videoRef: RefObject<HTMLVideoElement | null>) {
             blink_detected: blinkDetected,
             head_pose: headPose,
           })
+
+          // Debug logging to see detection status
+          console.log('✅ Face detected:', {
+            smile: smilePercentage,
+            emotion,
+            age,
+            confidence: emotionConfidence,
+            timestamp: new Date().toISOString()
+          })
         } else {
           // No face detected
+          console.log('❌ No face detected')
           setAnalysis({
             face_detected: false,
             smile_percentage: 0,
