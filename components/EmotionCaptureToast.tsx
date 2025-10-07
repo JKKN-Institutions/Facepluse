@@ -30,12 +30,28 @@ export function EmotionCaptureToast({
       {isVisible && (
         <motion.div
           initial={{ opacity: 0, x: 100, scale: 0.8 }}
-          animate={{ opacity: 1, x: 0, scale: 1 }}
+          animate={{
+            opacity: 1,
+            x: 0,
+            scale: 1,
+          }}
           exit={{ opacity: 0, x: 100, scale: 0.8 }}
           transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-          className="fixed top-20 right-4 md:top-24 md:right-6 z-40"
+          className="fixed top-20 right-4 md:top-24 md:right-6 z-[60]"
         >
-          <div className="bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl border-2 border-emerald-300/60 overflow-hidden min-w-[280px]">
+          {/* Glow animation */}
+          <motion.div
+            className="absolute inset-0 rounded-2xl bg-gradient-to-r from-emerald-400 to-teal-500 blur-xl"
+            animate={{
+              opacity: [0.3, 0.6, 0.3],
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          />
+          <div className="relative bg-white/98 backdrop-blur-xl rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] border-3 border-emerald-400/80 overflow-hidden min-w-[300px] ring-2 ring-emerald-500/20">
             {/* Header with gradient */}
             <div className="bg-gradient-to-r from-emerald-400 to-teal-500 px-4 py-2 flex items-center gap-2">
               <CheckCircle className="w-4 h-4 text-white" />

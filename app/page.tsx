@@ -147,7 +147,12 @@ export default function Home() {
     const savedMetric = await captureOnce()
 
     if (savedMetric) {
-      console.log('✅ Metric saved to database:', savedMetric)
+      console.log('✅ Metric saved to database:', {
+        emotion: savedMetric.emotion,
+        smile: savedMetric.smile_percentage,
+        age: savedMetric.age_estimate,
+        confidence: savedMetric.emotion_confidence
+      })
 
       // Use the actual saved metric from database
       setCapturedMetric(savedMetric)
@@ -155,24 +160,61 @@ export default function Home() {
       // Show popup ONLY for first capture, toast for subsequent ones
       if (isFirstCapture) {
         setShowCapturePopup(true)
-        console.log('✅ First capture - showing full popup with DB data')
+        console.log('✅ First capture - showing full popup with DB data:', {
+          emotion: savedMetric.emotion,
+          smile: savedMetric.smile_percentage
+        })
       } else {
         // Show toast notification for subsequent captures
         setToastEmotion(savedMetric.emotion)
         setToastSmile(savedMetric.smile_percentage)
         setShowToast(true)
-        console.log('✅ Subsequent capture - showing toast notification with DB data')
+        console.log('✅ Subsequent capture - showing toast with:', {
+          emotion: savedMetric.emotion,
+          smile: savedMetric.smile_percentage,
+          captureCount: capturedEmotions.length + 1
+        })
 
-        // Auto-hide toast after 3 seconds
+        // Auto-hide toast after 5 seconds (longer to see the notification)
         if (toastTimeoutRef.current) {
           clearTimeout(toastTimeoutRef.current)
         }
         toastTimeoutRef.current = setTimeout(() => {
           setShowToast(false)
-        }, 3000)
+        }, 5000)
       }
     } else {
-      console.error('❌ Failed to save metric to database')
+      console.error('❌ Failed to save metric to database - showing popup anyway with current data')
+
+      // FALLBACK: Show popup/toast even if DB save fails (important for production)
+      const fallbackMetric = {
+        smile_percentage: Math.round(analysis.smile_percentage),
+        emotion: analysis.emotion,
+        emotion_confidence: Math.round(analysis.emotion_confidence),
+        age_estimate: Math.round(analysis.age_estimate || 0),
+        blink_count: blinkCount,
+        head_pose: analysis.head_pose,
+        face_detected: analysis.face_detected,
+      }
+
+      setCapturedMetric(fallbackMetric)
+
+      if (isFirstCapture) {
+        setShowCapturePopup(true)
+        console.log('⚠️ Showing popup with fallback data (DB save failed)')
+      } else {
+        setToastEmotion(fallbackMetric.emotion)
+        setToastSmile(fallbackMetric.smile_percentage)
+        setShowToast(true)
+        console.log('⚠️ Showing toast with fallback data (DB save failed)')
+
+        if (toastTimeoutRef.current) {
+          clearTimeout(toastTimeoutRef.current)
+        }
+        toastTimeoutRef.current = setTimeout(() => {
+          setShowToast(false)
+        }, 5000)
+      }
     }
   }, [analysis, capturedEmotions.length, captureOnce])
 
@@ -202,12 +244,12 @@ export default function Home() {
 
     // Track emotion history for stability check
     emotionHistoryRef.current.push(analysis.emotion)
-    if (emotionHistoryRef.current.length > 3) {
-      emotionHistoryRef.current.shift() // Keep only last 3
+    if (emotionHistoryRef.current.length > 2) {
+      emotionHistoryRef.current.shift() // Keep only last 2
     }
 
-    // Check if emotion is stable (same for last 3 detections)
-    const isStable = emotionHistoryRef.current.length === 3 &&
+    // Check if emotion is stable (same for last 2 detections) - faster response
+    const isStable = emotionHistoryRef.current.length === 2 &&
       emotionHistoryRef.current.every(e => e === analysis.emotion)
 
     if (!isStable) {
@@ -220,10 +262,10 @@ export default function Home() {
     const isEmotionChange = lastCapturedEmotionRef.current !== null &&
                            lastCapturedEmotionRef.current !== analysis.emotion
 
-    // Check cooldown (2 seconds since last capture)
+    // Check cooldown (1 second since last capture for faster response)
     const now = Date.now()
     const timeSinceLastCapture = now - lastCaptureTimeRef.current
-    const cooldownPassed = timeSinceLastCapture > 2000 || lastCaptureTimeRef.current === 0
+    const cooldownPassed = timeSinceLastCapture > 1000 || lastCaptureTimeRef.current === 0
 
     console.log('🔍 Emotion capture check:', {
       emotion: analysis.emotion,
