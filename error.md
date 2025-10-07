@@ -1,18 +1,146 @@
-gjgmjkapgtefuovmrydw.supabase.co/rest/v1/metrics?select=*&session_id=eq.9108101b-2975-4099-9482-86bac6ba6eea&order=created_at.desc&limit=1:1  Failed to load resource: the server responded with a status of 406 ()
-intercept-console-error.js:57 Error getting last metric: Object
-error @ intercept-console-error.js:57
-gjgmjkapgtefuovmrydw.supabase.co/rest/v1/metrics?select=*&session_id=eq.9108101b-2975-4099-9482-86bac6ba6eea&order=created_at.desc&limit=1:1  Failed to load resource: the server responded with a status of 406 ()
-intercept-console-error.js:57 Error getting last metric: Object
-error @ intercept-console-error.js:57
-gjgmjkapgtefuovmrydw.supabase.co/rest/v1/metrics?select=*&session_id=eq.9108101b-2975-4099-9482-86bac6ba6eea&order=created_at.desc&limit=1:1  Failed to load resource: the server responded with a status of 406 ()
-C:\Users\admin\Downloads\Facepluse\hooks\useMetricsStorage.ts:95 Error getting last metric: Object
-error @ intercept-console-error.js:57
-getLastMetric @ C:\Users\admin\Downloads\Facepluse\hooks\useMetricsStorage.ts:95
-gjgmjkapgtefuovmrydw.supabase.co/rest/v1/metrics?select=*&session_id=eq.9108101b-2975-4099-9482-86bac6ba6eea&order=created_at.desc&limit=1:1  Failed to load resource: the server responded with a status of 406 ()
-C:\Users\admin\Downloads\Facepluse\hooks\useMetricsStorage.ts:95 Error getting last metric: Object
-error @ intercept-console-error.js:57
-getLastMetric @ C:\Users\admin\Downloads\Facepluse\hooks\useMetricsStorage.ts:95
-gjgmjkapgtefuovmrydw.supabase.co/rest/v1/metrics?select=*&session_id=eq.9108101b-2975-4099-9482-86bac6ba6eea&order=created_at.desc&limit=1:1  Failed to load resource: the server responded with a status of 406 ()
-C:\Users\admin\Downloads\Facepluse\hooks\useMetricsStorage.ts:95 Error getting last metric: Object
-error @ intercept-console-error.js:57
-getLastMetric @ C:\Users\admin\Downloads\Facepluse\hooks\useMetricsStorage.ts:95
+chext_driver.js:539 Initialized driver at: Tue Oct 07 2025 15:50:07 GMT+0530 (India Standard Time)
+react-dom-client.development.js:25631 Download the React DevTools for a better development experience: https://react.dev/link/react-devtools
+ Initialized chextloader at: 1759832408377
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:19 Loading face-api.js models...
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:29 All face-api.js models loaded successfully!
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: Object
+[Violation] 'message' handler took <N>ms
+[Violation] 'message' handler took <N>ms
+[Violation] 'message' handler took <N>ms
+[Violation] 'message' handler took <N>ms
+[Violation] 'message' handler took <N>ms
+[Violation] 'message' handler took <N>ms
+[Violation] 'message' handler took <N>ms
+[Violation] 'message' handler took <N>ms
+[Violation] 'message' handler took <N>ms
+[Violation] 'message' handler took <N>ms
+[Violation] 'message' handler took <N>ms
+[Violation] 'message' handler took <N>ms
+[Violation] 'message' handler took <N>ms
+[Violation] 'message' handler took <N>ms
+[Violation] 'message' handler took <N>ms
+[Violation] 'message' handler took <N>ms
+[Violation] 'message' handler took <N>ms
+[Violation] 'message' handler took <N>ms
+[Violation] 'message' handler took <N>ms
+[Violation] 'message' handler took <N>ms
+[Violation] 'message' handler took <N>ms
+[Violation] 'message' handler took <N>ms
+[Violation] 'message' handler took <N>ms
+[Violation] 'message' handler took <N>ms
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: {smile: 41, emotion: 'neutral', age: 22, confidence: 92, timestamp: '2025-10-07T10:20:48.435Z'}
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: {smile: 43, emotion: 'sad', age: 11, confidence: 54, timestamp: '2025-10-07T10:20:48.506Z'}
+chext_driver.js:253 [Violation] 'setInterval' handler took 212ms
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: {smile: 30, emotion: 'neutral', age: 17, confidence: 53, timestamp: '2025-10-07T10:20:50.299Z'}
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:187 ✅ Face detected: {smile: 30, emotion: 'neutral', age: 17, confidence: 53, timestamp: '2025-10-07T10:20:50.679Z'}
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected
+C:\Users\admin\Downloads\Facepluse\hooks\useFaceAnalysis.ts:196 ❌ No face detected

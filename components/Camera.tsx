@@ -3,7 +3,7 @@
 import { RefObject } from 'react'
 import { FaceAnalysis } from '@/types/face'
 import { motion, AnimatePresence } from 'framer-motion'
-import { AlertCircle, CheckCircle, Loader2, Camera as CameraIcon } from 'lucide-react'
+import { AlertCircle, CheckCircle, Camera as CameraIcon } from 'lucide-react'
 
 interface CameraProps {
   videoRef: RefObject<HTMLVideoElement | null>
@@ -94,34 +94,14 @@ export function Camera({ videoRef, loading, error, analysis, analyzing }: Camera
             )}
           </AnimatePresence>
 
-          {/* Analyzing Indicator - Top Right - Responsive */}
-          <AnimatePresence>
-            {analyzing && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0 }}
-                className="absolute top-3 right-3 md:top-6 md:right-6 flex items-center gap-1.5 md:gap-2 bg-blue-50/95 backdrop-blur-md px-3 py-1.5 md:px-4 md:py-2 rounded-full border border-blue-300/60 md:border-2 shadow-lg z-10"
-              >
-                <Loader2 className="w-3 h-3 md:w-4 md:h-4 text-blue-600 animate-spin" />
-                <span className="text-xs md:text-sm font-bold text-blue-700">Analyzing...</span>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Premium Analyzing Glow - Responsive */}
-          {analyzing && (
+          {/* Subtle Analyzing Glow - Only when actively analyzing */}
+          {analyzing && analysis?.face_detected && (
             <motion.div
-              className="absolute inset-0 rounded-[1.5rem] md:rounded-[2rem] border-2 md:border-4 border-emerald-400 pointer-events-none"
+              className="absolute inset-0 rounded-[1.5rem] md:rounded-[2rem] border-2 border-emerald-400/30 pointer-events-none"
               animate={{
-                opacity: [0.4, 0.8, 0.4],
-                boxShadow: [
-                  '0 0 20px rgba(16, 185, 129, 0.5), inset 0 0 20px rgba(16, 185, 129, 0.3)',
-                  '0 0 40px rgba(16, 185, 129, 0.7), inset 0 0 40px rgba(16, 185, 129, 0.5)',
-                  '0 0 20px rgba(16, 185, 129, 0.5), inset 0 0 20px rgba(16, 185, 129, 0.3)',
-                ],
+                opacity: [0.2, 0.4, 0.2],
               }}
-              transition={{ duration: 2, repeat: Infinity }}
+              transition={{ duration: 1.5, repeat: Infinity }}
             />
           )}
 

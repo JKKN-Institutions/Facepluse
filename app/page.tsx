@@ -6,6 +6,7 @@ import { MetricsPanel } from '@/components/MetricsPanel'
 import { CompactLeaderboard } from '@/components/CompactLeaderboard'
 import { ExitSummaryPopup } from '@/components/ExitSummaryPopup'
 import { FirstCapturePopup } from '@/components/FirstCapturePopup'
+import { EmotionCaptureToast } from '@/components/EmotionCaptureToast'
 import { Footer } from '@/components/Footer'
 import { EmotionQuote } from '@/components/EmotionQuote'
 import { useCamera } from '@/hooks/useCamera'
@@ -15,7 +16,7 @@ import { useMetricsStorage } from '@/hooks/useMetricsStorage'
 import { useFaceDetection } from '@/hooks/useFaceDetection'
 import { useLeaderboardSupabase } from '@/hooks/useLeaderboardSupabase'
 import { useConfetti } from '@/components/Confetti'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { LogOut } from 'lucide-react'
 
@@ -29,6 +30,7 @@ export default function Home() {
   // Emotion capture tracking (capture each unique emotion once)
   const [capturedEmotions, setCapturedEmotions] = useState<string[]>([])
   const lastCaptureTimeRef = useRef<number>(0)
+  const lastCapturedEmotionRef = useRef<string | null>(null) // Track last captured emotion for change detection
   const emotionHistoryRef = useRef<string[]>([]) // Track last 3 emotions for stability
 
   const { lastMetric, captureOnce, getLastMetric } = useMetricsStorage(
@@ -45,6 +47,12 @@ export default function Home() {
   const [showCapturePopup, setShowCapturePopup] = useState(false)
   const [capturedMetric, setCapturedMetric] = useState(null)
   const [capturedImage, setCapturedImage] = useState<string | null>(null)
+
+  // Toast notification state
+  const [showToast, setShowToast] = useState(false)
+  const [toastEmotion, setToastEmotion] = useState('')
+  const [toastSmile, setToastSmile] = useState(0)
+  const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Session duration tracking
   const [sessionDuration, setSessionDuration] = useState(0)
@@ -76,48 +84,7 @@ export default function Home() {
     }
   }, [analysis?.face_detected, capturedEmotions.length])
 
-  // Check emotion stability and trigger capture for new emotions
-  useEffect(() => {
-    if (!analysis?.face_detected || !analysis?.emotion || !sessionId || sessionLoading) {
-      return
-    }
-
-    // Track emotion history for stability check
-    emotionHistoryRef.current.push(analysis.emotion)
-    if (emotionHistoryRef.current.length > 3) {
-      emotionHistoryRef.current.shift() // Keep only last 3
-    }
-
-    // Check if emotion is stable (same for last 3 detections)
-    const isStable = emotionHistoryRef.current.length === 3 &&
-      emotionHistoryRef.current.every(e => e === analysis.emotion)
-
-    if (!isStable) {
-      return // Wait for stability
-    }
-
-    // Check if this emotion already captured
-    const alreadyCaptured = capturedEmotions.includes(analysis.emotion)
-
-    // Check cooldown (2 seconds since last capture)
-    const now = Date.now()
-    const timeSinceLastCapture = now - lastCaptureTimeRef.current
-    const cooldownPassed = timeSinceLastCapture > 2000 || lastCaptureTimeRef.current === 0
-
-    console.log('🔍 Emotion capture check:', {
-      emotion: analysis.emotion,
-      isStable,
-      alreadyCaptured,
-      cooldownPassed,
-      capturedEmotions
-    })
-
-    if (!alreadyCaptured && cooldownPassed) {
-      console.log('📸 Triggering emotion capture for:', analysis.emotion)
-      handleEmotionCapture()
-    }
-  }, [analysis?.face_detected, analysis?.emotion, sessionId, sessionLoading, capturedEmotions])
-
+  // Helper functions for emotion capture
   const captureVideoFrame = () => {
     if (!videoRef?.current) return null
 
@@ -152,10 +119,12 @@ export default function Home() {
     }, 500)
   }
 
-  const handleEmotionCapture = async () => {
+  const handleEmotionCapture = useCallback(async () => {
     if (!analysis?.face_detected || !analysis?.emotion) return
 
     console.log('📸 Starting emotion capture for:', analysis.emotion)
+
+    const isFirstCapture = capturedEmotions.length === 0
 
     // Add emotion to captured list
     setCapturedEmotions(prev => [...prev, analysis.emotion])
@@ -170,36 +139,126 @@ export default function Home() {
     const frameImage = captureVideoFrame()
     console.log('🖼️ Frame captured:', frameImage ? 'success' : 'failed')
 
-    // Create metric object from current analysis (actual real-time data)
-    const currentMetric = {
-      smile_percentage: Math.round(analysis.smile_percentage),
-      emotion: analysis.emotion,
-      emotion_confidence: Math.round(analysis.emotion_confidence),
-      age_estimate: Math.round(analysis.age_estimate || 0),
-      blink_count: blinkCount,
-      head_pose: analysis.head_pose,
-      face_detected: analysis.face_detected,
-    }
-
-    console.log('📊 Captured metrics:', currentMetric)
-
-    // Store captured data with actual current metrics
-    setCapturedMetric(currentMetric)
+    // Store captured image
     setCapturedImage(frameImage)
 
-    // Show popup immediately with actual metrics
-    setShowCapturePopup(true)
-    console.log('✅ Popup displayed with actual metrics')
+    // Save to database FIRST and wait for the result
+    console.log('💾 Saving metric to database...')
+    const savedMetric = await captureOnce()
 
-    // Save to database in background (don't wait)
-    captureOnce().then((savedMetric) => {
-      console.log('💾 Metric saved to database:', savedMetric)
+    if (savedMetric) {
+      console.log('✅ Metric saved to database:', savedMetric)
+
+      // Use the actual saved metric from database
+      setCapturedMetric(savedMetric)
+
+      // Show popup ONLY for first capture, toast for subsequent ones
+      if (isFirstCapture) {
+        setShowCapturePopup(true)
+        console.log('✅ First capture - showing full popup with DB data')
+      } else {
+        // Show toast notification for subsequent captures
+        setToastEmotion(savedMetric.emotion)
+        setToastSmile(savedMetric.smile_percentage)
+        setShowToast(true)
+        console.log('✅ Subsequent capture - showing toast notification with DB data')
+
+        // Auto-hide toast after 3 seconds
+        if (toastTimeoutRef.current) {
+          clearTimeout(toastTimeoutRef.current)
+        }
+        toastTimeoutRef.current = setTimeout(() => {
+          setShowToast(false)
+        }, 3000)
+      }
+    } else {
+      console.error('❌ Failed to save metric to database')
+    }
+  }, [analysis, capturedEmotions.length, captureOnce])
+
+  // Check emotion stability and trigger capture for new emotions
+  useEffect(() => {
+    console.log('🔄 Emotion capture effect running', {
+      faceDetected: analysis?.face_detected,
+      emotion: analysis?.emotion,
+      sessionId,
+      sessionLoading
     })
-  }
+
+    if (!analysis?.face_detected) {
+      console.log('⏸️ No face detected - skipping capture check')
+      return
+    }
+
+    if (!analysis?.emotion) {
+      console.log('⏸️ No emotion detected - skipping capture check')
+      return
+    }
+
+    if (!sessionId || sessionLoading) {
+      console.log('⏸️ Session not ready - skipping capture check', { sessionId, sessionLoading })
+      return
+    }
+
+    // Track emotion history for stability check
+    emotionHistoryRef.current.push(analysis.emotion)
+    if (emotionHistoryRef.current.length > 3) {
+      emotionHistoryRef.current.shift() // Keep only last 3
+    }
+
+    // Check if emotion is stable (same for last 3 detections)
+    const isStable = emotionHistoryRef.current.length === 3 &&
+      emotionHistoryRef.current.every(e => e === analysis.emotion)
+
+    if (!isStable) {
+      console.log('⏳ Emotion not stable yet, history:', emotionHistoryRef.current)
+      return // Wait for stability
+    }
+
+    // Check if this is a NEW or CHANGED emotion (different from last captured)
+    const isNewEmotion = !capturedEmotions.includes(analysis.emotion)
+    const isEmotionChange = lastCapturedEmotionRef.current !== null &&
+                           lastCapturedEmotionRef.current !== analysis.emotion
+
+    // Check cooldown (2 seconds since last capture)
+    const now = Date.now()
+    const timeSinceLastCapture = now - lastCaptureTimeRef.current
+    const cooldownPassed = timeSinceLastCapture > 2000 || lastCaptureTimeRef.current === 0
+
+    console.log('🔍 Emotion capture check:', {
+      emotion: analysis.emotion,
+      isStable,
+      isNewEmotion,
+      isEmotionChange,
+      lastCapturedEmotion: lastCapturedEmotionRef.current,
+      cooldownPassed,
+      timeSinceLastCapture,
+      capturedEmotions
+    })
+
+    // Capture if: (1) it's a brand new emotion OR (2) emotion changed from last capture AND cooldown passed
+    if ((isNewEmotion || isEmotionChange) && cooldownPassed) {
+      console.log('📸 Triggering emotion capture for:', analysis.emotion)
+      lastCapturedEmotionRef.current = analysis.emotion // Update last captured emotion
+      handleEmotionCapture()
+    } else {
+      if (!isNewEmotion && !isEmotionChange) {
+        console.log('⏭️ Same emotion as last capture, skipping')
+      }
+      if (!cooldownPassed) {
+        console.log('⏭️ Cooldown not passed yet, waiting...')
+      }
+    }
+  }, [analysis?.face_detected, analysis?.emotion, sessionId, sessionLoading, capturedEmotions, handleEmotionCapture])
 
   const handleRecapture = () => {
     // Remove the last captured emotion to allow re-capture
     setCapturedEmotions(prev => prev.slice(0, -1))
+
+    // Reset last captured emotion ref
+    lastCapturedEmotionRef.current = capturedEmotions.length > 1
+      ? capturedEmotions[capturedEmotions.length - 2]
+      : null
 
     // Reset emotion history to allow immediate re-detection
     emotionHistoryRef.current = []
@@ -223,6 +282,15 @@ export default function Home() {
       getLastMetric(sessionId)
     }
   }, [showExitPopup, sessionId])
+
+  // Cleanup toast timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (toastTimeoutRef.current) {
+        clearTimeout(toastTimeoutRef.current)
+      }
+    }
+  }, [])
 
   // Show loading state while session initializes
   if (sessionLoading) {
@@ -319,7 +387,14 @@ export default function Home() {
           </div>
         </div>
 
-        {/* First Capture Popup */}
+        {/* Emotion Capture Toast - for subsequent captures */}
+        <EmotionCaptureToast
+          isVisible={showToast}
+          emotion={toastEmotion}
+          smilePercentage={toastSmile}
+        />
+
+        {/* First Capture Popup - only for first emotion */}
         <FirstCapturePopup
           isOpen={showCapturePopup}
           onClose={() => setShowCapturePopup(false)}
