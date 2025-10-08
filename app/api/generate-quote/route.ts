@@ -28,7 +28,7 @@ export async function POST(request: Request) {
 
     // Generate quote using OpenAI
     const response = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
+      model: 'GPT-4.1 mini',
       messages: [
         {
           role: 'system',
