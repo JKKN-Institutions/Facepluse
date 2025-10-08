@@ -76,11 +76,11 @@ export function useLeaderboardSupabase() {
       fetchLeaderboard();
     }, 30000); // 30 seconds
 
-    // Rotate to next batch every 30 minutes
+    // Rotate to next batch every 10 minutes
     rotationTimerRef.current = setInterval(() => {
       console.log('🔄 Rotating to next top 5 smiles...');
       rotateToNextBatch();
-    }, 1800000); // 30 minutes = 1,800,000ms
+    }, 600000); // 10 minutes = 600,000ms
 
     // Subscribe to real-time updates
     const channel = supabase
