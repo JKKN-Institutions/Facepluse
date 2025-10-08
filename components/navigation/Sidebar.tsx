@@ -7,14 +7,14 @@ import {
   BarChart3,
   History,
   Trophy,
-  ChevronLeft,
   Activity,
   Sparkles,
 } from 'lucide-react';
 
 interface SidebarProps {
   open: boolean;
-  onToggle: () => void;
+  onOpen: () => void;
+  onClose: () => void;
 }
 
 const navigationItems = [
@@ -44,7 +44,7 @@ const navigationItems = [
   },
 ];
 
-export function Sidebar({ open, onToggle }: SidebarProps) {
+export function Sidebar({ open, onOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -52,6 +52,8 @@ export function Sidebar({ open, onToggle }: SidebarProps) {
     <motion.aside
       animate={{ width: open ? 280 : 80 }}
       transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+      onMouseEnter={onOpen}
+      onMouseLeave={onClose}
       className="h-full bg-white/80 backdrop-blur-2xl border-r-2 border-emerald-100 shadow-2xl flex flex-col relative"
     >
       {/* Logo Section with Gradient */}
@@ -172,22 +174,6 @@ export function Sidebar({ open, onToggle }: SidebarProps) {
           );
         })}
       </nav>
-
-      {/* Toggle Button - Enhanced */}
-      <motion.button
-        onClick={onToggle}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        className="absolute -right-4 top-28 w-8 h-8 bg-gradient-to-br from-emerald-400 to-emerald-600 border-3 border-white rounded-full flex items-center justify-center shadow-lg hover:shadow-emerald-lg transition-all duration-300 z-20"
-        aria-label={open ? 'Collapse sidebar' : 'Expand sidebar'}
-      >
-        <motion.div
-          animate={{ rotate: open ? 0 : 180 }}
-          transition={{ duration: 0.3 }}
-        >
-          <ChevronLeft className="w-4 h-4 text-white" strokeWidth={3} />
-        </motion.div>
-      </motion.button>
     </motion.aside>
   );
 }

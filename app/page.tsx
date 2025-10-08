@@ -5,8 +5,6 @@ import { Camera } from '@/components/Camera'
 import { MetricsPanel } from '@/components/MetricsPanel'
 import { CompactLeaderboard } from '@/components/CompactLeaderboard'
 import { ExitSummaryPopup } from '@/components/ExitSummaryPopup'
-import { FirstCapturePopup } from '@/components/FirstCapturePopup'
-import { EmotionCaptureToast } from '@/components/EmotionCaptureToast'
 import { Footer } from '@/components/Footer'
 import { EmotionQuote } from '@/components/EmotionQuote'
 import { useCamera } from '@/hooks/useCamera'
@@ -23,7 +21,7 @@ import { Metric } from '@/lib/supabase/client'
 
 export default function Home() {
   const { videoRef, loading, error } = useCamera()
-  const { analysis, analyzing, blinkCount } = useFaceAnalysis(videoRef)
+  const { analysis, analyzing, blinkCount, faceDetection } = useFaceAnalysis(videoRef)
 
   // Supabase integration
   const { sessionId, loading: sessionLoading, sessionStart } = useSupabaseSession()
@@ -44,16 +42,9 @@ export default function Home() {
   const { showExitPopup, setShowExitPopup, lastFaceImage, manualEndSession } = useFaceDetection(analysis, videoRef)
   const { entries: leaderboard } = useLeaderboardSupabase()
 
-  // Popup state
-  const [showCapturePopup, setShowCapturePopup] = useState(false)
+  // Captured metric state (for display in metrics panel)
   const [capturedMetric, setCapturedMetric] = useState<Metric | null>(null)
   const [capturedImage, setCapturedImage] = useState<string | null>(null)
-
-  // Toast notification state
-  const [showToast, setShowToast] = useState(false)
-  const [toastEmotion, setToastEmotion] = useState('')
-  const [toastSmile, setToastSmile] = useState(0)
-  const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Session duration tracking
   const [sessionDuration, setSessionDuration] = useState(0)
@@ -158,36 +149,17 @@ export default function Home() {
       // Use the actual saved metric from database
       setCapturedMetric(savedMetric)
 
-      // Show popup ONLY for first capture, toast for subsequent ones
-      if (isFirstCapture) {
-        setShowCapturePopup(true)
-        console.log('✅ First capture - showing full popup with DB data:', {
-          emotion: savedMetric.emotion,
-          smile: savedMetric.smile_percentage
-        })
-      } else {
-        // Show toast notification for subsequent captures
-        setToastEmotion(savedMetric.emotion)
-        setToastSmile(savedMetric.smile_percentage)
-        setShowToast(true)
-        console.log('✅ Subsequent capture - showing toast with:', {
-          emotion: savedMetric.emotion,
-          smile: savedMetric.smile_percentage,
-          captureCount: capturedEmotions.length + 1
-        })
-
-        // Auto-hide toast after 5 seconds (longer to see the notification)
-        if (toastTimeoutRef.current) {
-          clearTimeout(toastTimeoutRef.current)
-        }
-        toastTimeoutRef.current = setTimeout(() => {
-          setShowToast(false)
-        }, 5000)
-      }
+      // Just log the capture - metrics are displayed in the metrics panel
+      console.log('✅ Emotion captured and saved:', {
+        emotion: savedMetric.emotion,
+        smile: savedMetric.smile_percentage,
+        captureCount: capturedEmotions.length,
+        isFirstCapture
+      })
     } else {
-      console.error('❌ Failed to save metric to database - showing popup anyway with current data')
+      console.error('❌ Failed to save metric to database')
 
-      // FALLBACK: Show popup/toast even if DB save fails (important for production)
+      // FALLBACK: Still set metric for display in metrics panel
       const fallbackMetric = {
         smile_percentage: Math.round(analysis.smile_percentage),
         emotion: analysis.emotion,
@@ -199,23 +171,7 @@ export default function Home() {
       } as Metric
 
       setCapturedMetric(fallbackMetric)
-
-      if (isFirstCapture) {
-        setShowCapturePopup(true)
-        console.log('⚠️ Showing popup with fallback data (DB save failed)')
-      } else {
-        setToastEmotion(fallbackMetric.emotion)
-        setToastSmile(fallbackMetric.smile_percentage)
-        setShowToast(true)
-        console.log('⚠️ Showing toast with fallback data (DB save failed)')
-
-        if (toastTimeoutRef.current) {
-          clearTimeout(toastTimeoutRef.current)
-        }
-        toastTimeoutRef.current = setTimeout(() => {
-          setShowToast(false)
-        }, 5000)
-      }
+      console.log('⚠️ Using fallback data (DB save failed)')
     }
   }, [analysis, capturedEmotions.length, captureOnce])
 
@@ -306,8 +262,7 @@ export default function Home() {
     // Reset emotion history to allow immediate re-detection
     emotionHistoryRef.current = []
 
-    // Close popup
-    setShowCapturePopup(false)
+    // Reset captured data
     setCapturedMetric(null)
     setCapturedImage(null)
 
@@ -325,15 +280,6 @@ export default function Home() {
       getLastMetric(sessionId)
     }
   }, [showExitPopup, sessionId])
-
-  // Cleanup toast timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (toastTimeoutRef.current) {
-        clearTimeout(toastTimeoutRef.current)
-      }
-    }
-  }, [])
 
   // Show loading state while session initializes
   if (sessionLoading) {
@@ -354,27 +300,6 @@ export default function Home() {
           {/* Camera Section - Takes full width on mobile/tablet, scrollable */}
           <div className="flex-1 overflow-y-auto relative z-0">
             <div className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8 space-y-6">
-              {/* Captured Emotions Indicator */}
-              {capturedEmotions.length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex items-center justify-center gap-2 flex-wrap"
-                >
-                  <span className="text-sm font-semibold text-gray-600">Captured:</span>
-                  {capturedEmotions.map((emotion, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      className="px-3 py-1 bg-gradient-to-r from-emerald-400 to-teal-400 text-white rounded-full text-xs font-semibold capitalize shadow-md"
-                    >
-                      {emotion}
-                    </motion.div>
-                  ))}
-                </motion.div>
-              )}
-
               {/* Emotion Quote - Above Camera */}
               {analysis?.face_detected && (
                 <EmotionQuote emotion={analysis.emotion} />
@@ -383,7 +308,7 @@ export default function Home() {
               {/* Camera Section - Centered */}
               <div className="flex items-center justify-center">
                 <div className="w-full max-w-4xl relative">
-                  <Camera videoRef={videoRef} loading={loading} error={error} analysis={analysis} analyzing={analyzing} />
+                  <Camera videoRef={videoRef} loading={loading} error={error} analysis={analysis} analyzing={analyzing} faceDetection={faceDetection} />
 
                   {/* Session Ending Message */}
                   {showEndingMessage && !showExitPopup && (
@@ -399,7 +324,7 @@ export default function Home() {
                   )}
 
                   {/* End Session Button - Floating */}
-                  {capturedEmotions.length > 0 && !showCapturePopup && (
+                  {capturedEmotions.length > 0 && (
                     <motion.button
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
@@ -436,23 +361,6 @@ export default function Home() {
             </div>
           </div>
         </div>
-
-        {/* Emotion Capture Toast - for subsequent captures */}
-        <EmotionCaptureToast
-          isVisible={showToast}
-          emotion={toastEmotion}
-          smilePercentage={toastSmile}
-        />
-
-        {/* First Capture Popup - only for first emotion */}
-        <FirstCapturePopup
-          isOpen={showCapturePopup}
-          onClose={() => setShowCapturePopup(false)}
-          capturedImage={capturedImage}
-          metric={capturedMetric}
-          sessionDuration={sessionDuration}
-          onRecapture={handleRecapture}
-        />
 
         {/* Exit Summary Popup */}
         <ExitSummaryPopup

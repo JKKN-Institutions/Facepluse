@@ -46,7 +46,10 @@ export function CompactLeaderboard({ entries = [] }: CompactLeaderboardProps) {
           <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-xl flex items-center justify-center shadow-lg">
             <Trophy className="w-5 h-5 text-white" />
           </div>
-          <h3 className="text-xl font-bold text-gray-800">Top Smiles</h3>
+          <div>
+            <h3 className="text-xl font-bold text-gray-800">Top Smiles</h3>
+            <p className="text-xs text-gray-500 font-medium">Last 24 hours</p>
+          </div>
         </div>
         <div className="flex items-center gap-2 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200/50">
           <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />

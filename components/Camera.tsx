@@ -1,9 +1,10 @@
 'use client'
 
-import { RefObject } from 'react'
+import { RefObject, useEffect, useRef, useState } from 'react'
 import { FaceAnalysis } from '@/types/face'
 import { motion, AnimatePresence } from 'framer-motion'
 import { AlertCircle, CheckCircle, Camera as CameraIcon } from 'lucide-react'
+import * as faceapi from 'face-api.js'
 
 interface CameraProps {
   videoRef: RefObject<HTMLVideoElement | null>
@@ -11,9 +12,136 @@ interface CameraProps {
   error: string | null
   analysis: FaceAnalysis | null
   analyzing: boolean
+  faceDetection: faceapi.WithFaceLandmarks<{detection: faceapi.FaceDetection}, faceapi.FaceLandmarks68> | null
 }
 
-export function Camera({ videoRef, loading, error, analysis, analyzing }: CameraProps) {
+export function Camera({ videoRef, loading, error, analysis, analyzing, faceDetection }: CameraProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const [showNoFaceMessage, setShowNoFaceMessage] = useState(false)
+  const noFaceTimerRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Draw face landmarks on canvas overlay
+  useEffect(() => {
+    if (!canvasRef.current || !videoRef.current || !faceDetection) {
+      // Clear canvas if no detection
+      if (canvasRef.current) {
+        const ctx = canvasRef.current.getContext('2d')
+        if (ctx) {
+          ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
+        }
+      }
+      return
+    }
+
+    const canvas = canvasRef.current
+    const video = videoRef.current
+
+    // Match canvas size to video
+    const displaySize = {
+      width: video.videoWidth,
+      height: video.videoHeight,
+    }
+
+    faceapi.matchDimensions(canvas, displaySize)
+
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    // Clear previous drawings
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+    // Get resized landmarks to match canvas size
+    const resizedDetections = faceapi.resizeResults(faceDetection, displaySize)
+    const landmarks = resizedDetections.landmarks
+
+    // Drawing style - green/emerald theme
+    ctx.strokeStyle = '#10B981' // emerald-500
+    ctx.lineWidth = 2
+    ctx.lineCap = 'round'
+    ctx.lineJoin = 'round'
+
+    // Helper function to draw connected points
+    const drawPath = (points: faceapi.Point[], close = false, color = '#10B981', lineWidth = 2) => {
+      if (points.length < 2) return
+
+      ctx.strokeStyle = color
+      ctx.lineWidth = lineWidth
+      ctx.beginPath()
+      ctx.moveTo(points[0].x, points[0].y)
+
+      for (let i = 1; i < points.length; i++) {
+        ctx.lineTo(points[i].x, points[i].y)
+      }
+
+      if (close) {
+        ctx.closePath()
+      }
+
+      ctx.stroke()
+    }
+
+    // Helper function to draw points
+    const drawPoints = (points: faceapi.Point[], color = '#34D399', radius = 2) => {
+      ctx.fillStyle = color
+      points.forEach(point => {
+        ctx.beginPath()
+        ctx.arc(point.x, point.y, radius, 0, 2 * Math.PI)
+        ctx.fill()
+      })
+    }
+
+    // Draw face contours
+    // 1. Jaw outline (main face shape)
+    drawPath(landmarks.getJawOutline(), false, '#10B981', 3)
+
+    // 2. Left eyebrow
+    drawPath(landmarks.getLeftEyeBrow(), false, '#059669', 2)
+
+    // 3. Right eyebrow
+    drawPath(landmarks.getRightEyeBrow(), false, '#059669', 2)
+
+    // 4. Nose bridge and outline
+    drawPath(landmarks.getNose(), false, '#34D399', 2)
+
+    // 5. Left eye
+    drawPath(landmarks.getLeftEye(), true, '#14B8A6', 2)
+
+    // 6. Right eye
+    drawPath(landmarks.getRightEye(), true, '#14B8A6', 2)
+
+    // 7. Mouth outer line
+    drawPath(landmarks.getMouth(), true, '#10B981', 2.5)
+
+  }, [faceDetection, videoRef])
+
+  // Debounce "no face" message to prevent blinking
+  useEffect(() => {
+    const isFaceDetected = analysis?.face_detected
+
+    if (isFaceDetected) {
+      // Face detected - immediately hide message and clear timer
+      setShowNoFaceMessage(false)
+      if (noFaceTimerRef.current) {
+        clearTimeout(noFaceTimerRef.current)
+        noFaceTimerRef.current = null
+      }
+    } else {
+      // No face detected - wait 2 seconds before showing message
+      if (!noFaceTimerRef.current) {
+        noFaceTimerRef.current = setTimeout(() => {
+          setShowNoFaceMessage(true)
+        }, 2000) // 2 second delay
+      }
+    }
+
+    return () => {
+      if (noFaceTimerRef.current) {
+        clearTimeout(noFaceTimerRef.current)
+        noFaceTimerRef.current = null
+      }
+    }
+  }, [analysis?.face_detected])
+
 
   if (loading) {
     return (
@@ -79,6 +207,13 @@ export function Camera({ videoRef, loading, error, analysis, analyzing }: Camera
             className="w-full h-full object-cover"
           />
 
+          {/* Face Tracking Canvas Overlay */}
+          <canvas
+            ref={canvasRef}
+            className="absolute inset-0 w-full h-full pointer-events-none"
+            style={{ opacity: 0.9 }}
+          />
+
           {/* Status Badges - Relocated to Bottom - Responsive */}
           <AnimatePresence>
             {analysis?.face_detected && (
@@ -105,20 +240,24 @@ export function Camera({ videoRef, loading, error, analysis, analyzing }: Camera
             />
           )}
 
-          {/* Center Prompt if No Face - Responsive */}
-          {!analysis?.face_detected && !analyzing && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="absolute inset-0 flex items-center justify-center"
-            >
-              <div className="text-center bg-black/50 backdrop-blur-sm px-4 py-4 md:px-8 md:py-6 rounded-xl md:rounded-2xl mx-4">
-                <CameraIcon className="w-8 h-8 md:w-12 md:h-12 text-white mx-auto mb-2 md:mb-3 opacity-75" />
-                <p className="text-white text-sm md:text-lg font-medium">Position your face in the frame</p>
-                <p className="text-white/70 text-xs md:text-sm mt-1">Look directly at the camera</p>
-              </div>
-            </motion.div>
-          )}
+          {/* Center Prompt if No Face - Responsive with debounce */}
+          <AnimatePresence>
+            {showNoFaceMessage && !analyzing && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1, ease: 'easeInOut' }}
+                className="absolute inset-0 flex items-center justify-center"
+              >
+                <div className="text-center bg-black/50 backdrop-blur-sm px-4 py-4 md:px-8 md:py-6 rounded-xl md:rounded-2xl mx-4">
+                  <CameraIcon className="w-8 h-8 md:w-12 md:h-12 text-white mx-auto mb-2 md:mb-3 opacity-75" />
+                  <p className="text-white text-sm md:text-lg font-medium">Position your face in the frame</p>
+                  <p className="text-white/70 text-xs md:text-sm mt-1">Look directly at the camera</p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </motion.div>
     </div>

@@ -19,7 +19,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false); // Start closed, expand on hover
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   return (
@@ -28,7 +28,11 @@ export default function RootLayout({
         <div className="flex h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 overflow-hidden">
           {/* Desktop Sidebar */}
           <div className="hidden lg:block">
-            <Sidebar open={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
+            <Sidebar
+              open={sidebarOpen}
+              onOpen={() => setSidebarOpen(true)}
+              onClose={() => setSidebarOpen(false)}
+            />
           </div>
 
           {/* Mobile Navigation */}

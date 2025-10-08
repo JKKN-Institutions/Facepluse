@@ -9,6 +9,7 @@ export function useFaceAnalysis(videoRef: RefObject<HTMLVideoElement | null>) {
   const [analyzing, setAnalyzing] = useState(false)
   const [blinkCount, setBlinkCount] = useState(0)
   const [modelsLoaded, setModelsLoaded] = useState(false)
+  const [faceDetection, setFaceDetection] = useState<faceapi.WithFaceLandmarks<{detection: faceapi.FaceDetection}, faceapi.FaceLandmarks68> | null>(null)
   const lastEyeState = useRef<'open' | 'closed'>('open')
   const blinkFrameCount = useRef(0)
 
@@ -183,6 +184,9 @@ export function useFaceAnalysis(videoRef: RefObject<HTMLVideoElement | null>) {
             head_pose: headPose,
           })
 
+          // Store full detection data for face shape overlay
+          setFaceDetection(detections)
+
           // Debug logging to see detection status
           console.log('✅ Face detected:', {
             smile: smilePercentage,
@@ -203,6 +207,7 @@ export function useFaceAnalysis(videoRef: RefObject<HTMLVideoElement | null>) {
             blink_detected: false,
             head_pose: 'center',
           })
+          setFaceDetection(null)
         }
       } catch (error) {
         console.error('Face analysis failed:', error)
@@ -215,5 +220,5 @@ export function useFaceAnalysis(videoRef: RefObject<HTMLVideoElement | null>) {
     return () => clearInterval(interval)
   }, [videoRef, analyzing, modelsLoaded])
 
-  return { analysis, analyzing, blinkCount }
+  return { analysis, analyzing, blinkCount, faceDetection }
 }
