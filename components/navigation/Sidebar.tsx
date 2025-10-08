@@ -91,7 +91,7 @@ export function Sidebar({ open, onOpen, onClose }: SidebarProps) {
                   FacePulse
                 </h1>
                 <p className="text-[10px] font-medium text-emerald-600/70 tracking-wider uppercase">
-                  AI Analysis
+                Live Facial Intelligence
                 </p>
               </motion.div>
             )}
