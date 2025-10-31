@@ -281,17 +281,8 @@ export default function Home() {
     }
   }, [showExitPopup, sessionId])
 
-  // Show loading state while session initializes
-  if (sessionLoading) {
-    return (
-      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 to-green-50">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-lg font-semibold text-gray-700">Initializing session...</p>
-        </div>
-      </div>
-    )
-  }
+  // Note: Session loading is non-blocking - app works even if session creation fails
+  // This ensures users can always use the app, with or without session tracking
 
   return (
     <DashboardLayout>

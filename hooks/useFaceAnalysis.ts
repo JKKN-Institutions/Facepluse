@@ -3,6 +3,8 @@
 import { useState, useEffect, RefObject, useRef } from 'react'
 import { FaceAnalysis } from '@/types/face'
 import * as faceapi from 'face-api.js'
+import { useTheme } from '@/contexts/ThemeContext'
+import { Emotion, isValidEmotion } from '@/lib/emotion-themes'
 
 export function useFaceAnalysis(videoRef: RefObject<HTMLVideoElement | null>) {
   const [analysis, setAnalysis] = useState<FaceAnalysis | null>(null)
@@ -12,6 +14,10 @@ export function useFaceAnalysis(videoRef: RefObject<HTMLVideoElement | null>) {
   const [faceDetection, setFaceDetection] = useState<faceapi.WithFaceLandmarks<{detection: faceapi.FaceDetection}, faceapi.FaceLandmarks68> | null>(null)
   const lastEyeState = useRef<'open' | 'closed'>('open')
   const blinkFrameCount = useRef(0)
+
+  // Get theme context for dynamic emotion-based themes
+  const { setEmotion } = useTheme()
+  const lastEmotionRef = useRef<string | null>(null)
 
   // Load face-api.js models
   useEffect(() => {
@@ -183,6 +189,13 @@ export function useFaceAnalysis(videoRef: RefObject<HTMLVideoElement | null>) {
             blink_detected: blinkDetected,
             head_pose: headPose,
           })
+
+          // Update global theme based on detected emotion (only if emotion changed)
+          if (emotion !== lastEmotionRef.current && isValidEmotion(emotion)) {
+            console.log('🎨 Updating theme to:', emotion)
+            setEmotion(emotion as Emotion)
+            lastEmotionRef.current = emotion
+          }
 
           // Store full detection data for face shape overlay
           setFaceDetection(detections)

@@ -57,12 +57,28 @@ export function useSupabaseSession() {
         hint: error?.hint,
         code: error?.code
       });
+
+      // Fallback: Generate a temporary client-side session ID
+      // This allows the app to function even if Supabase session creation fails
+      const tempSessionId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      console.log('⚠️ Using temporary session ID (session tracking disabled):', tempSessionId);
+      setSessionId(tempSessionId);
+      setSessionStart(new Date());
+
+      // Show user-friendly message (optional - only if you want to notify users)
+      console.warn('📝 Note: Session tracking is temporarily unavailable. Your experience will continue normally.');
     } finally {
       setLoading(false);
     }
   };
 
   const endSession = async (id: string) => {
+    // Skip if using temporary session ID
+    if (id.startsWith('temp-')) {
+      console.log('⚠️ Skipping session end for temporary session:', id);
+      return;
+    }
+
     try {
       const { data: session } = await supabase
         .from('sessions')

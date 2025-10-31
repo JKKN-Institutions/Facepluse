@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/admin/Pictures/Screenshots/**)",
+      "Bash(node:*)",
+      "Bash(npm --version:*)",
+      "Bash(dir:*)",
+      "Bash(where:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run build:*)",
+      "mcp__supabase__execute_sql",
+      "mcp__supabase__list_migrations"
+    ],
+    "deny": [],
+    "ask": []
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "memory",
+    "filesystem",
+    "supabase",
+    "context7"
+  ],
+  "disabledMcpjsonServers": []
+}

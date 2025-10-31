@@ -12,12 +12,21 @@ export function EmotionQuote({ emotion }: EmotionQuoteProps) {
   const [quote, setQuote] = useState<string>('')
   const [loading, setLoading] = useState(false)
 
-  // Fetch quote only once per session (on component mount)
+  // Fetch quote when emotion changes
   useEffect(() => {
-    fetchQuote()
-  }, [])
+    // Only fetch if emotion is valid
+    if (emotion && emotion.trim()) {
+      fetchQuote()
+    }
+  }, [emotion]) // Re-fetch when emotion changes
 
   const fetchQuote = async () => {
+    // Validate emotion before making request
+    if (!emotion || !emotion.trim()) {
+      console.warn('Invalid emotion provided, skipping quote fetch')
+      return
+    }
+
     setLoading(true)
     try {
       const response = await fetch('/api/generate-quote', {
@@ -25,6 +34,10 @@ export function EmotionQuote({ emotion }: EmotionQuoteProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ emotion }),
       })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
 
       const data = await response.json()
       setQuote(data.quote)

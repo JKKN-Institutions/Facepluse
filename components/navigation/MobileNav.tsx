@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
-import { Home, BarChart3, History, Trophy, Activity, Sparkles } from 'lucide-react';
+import { Home, BarChart3, History, Trophy, Activity, Sparkles, Target, Film } from 'lucide-react';
 
 interface MobileNavProps {
   open: boolean;
@@ -34,6 +34,18 @@ const navigationItems = [
     href: '/leaderboard',
     icon: Trophy,
     description: 'Top performers'
+  },
+  {
+    name: 'Emoji Challenge',
+    href: '/challenge',
+    icon: Target,
+    description: 'Match emotions game'
+  },
+  {
+    name: 'Time Capsule',
+    href: '/timecapsule',
+    icon: Film,
+    description: 'Event recordings'
   },
 ];
 

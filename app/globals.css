@@ -3,6 +3,19 @@
 :root {
   --background: #0F172A;
   --foreground: #ededed;
+
+  /* Dynamic Emotion Theme Variables */
+  --color-primary: #10B981;
+  --color-secondary: #34D399;
+  --color-accent: #059669;
+  --gradient-primary: linear-gradient(135deg, #34D399 0%, #059669 100%);
+  --glow-color: rgba(16, 185, 129, 0.3);
+  --background-tint: rgba(52, 211, 153, 0.05);
+  --text-primary: #065F46;
+  --text-secondary: #047857;
+
+  /* Smooth transitions for theme changes */
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @theme inline {
@@ -252,4 +265,71 @@ body {
   z-index: 9999;
   pointer-events: none;
   animation: camera-flash 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== DYNAMIC EMOTION THEME STYLES ===== */
+
+/* Apply smooth theme transitions to all theme-aware elements */
+.theme-transition {
+  transition: background-color 0.8s ease,
+              border-color 0.8s ease,
+              box-shadow 0.8s ease,
+              color 0.8s ease,
+              background-image 0.8s ease;
+}
+
+/* Dynamic background using current theme gradient */
+.dynamic-bg {
+  background: var(--gradient-primary);
+}
+
+/* Dynamic glow effect using current theme color */
+.dynamic-glow {
+  box-shadow: 0 0 40px var(--glow-color),
+              0 0 20px var(--glow-color);
+}
+
+/* Dynamic border using current theme primary color */
+.dynamic-border {
+  border-color: var(--color-primary);
+}
+
+/* Dynamic text color using current theme */
+.dynamic-text-primary {
+  color: var(--text-primary);
+}
+
+.dynamic-text-secondary {
+  color: var(--text-secondary);
+}
+
+/* Dynamic background tint */
+.dynamic-bg-tint {
+  background-color: var(--background-tint);
+}
+
+/* Dynamic accent background */
+.dynamic-accent-bg {
+  background-color: var(--color-accent);
+}
+
+/* Dynamic primary background */
+.dynamic-primary-bg {
+  background-color: var(--color-primary);
+}
+
+/* Pulsing glow animation with dynamic color */
+@keyframes pulse-glow-dynamic {
+  0%, 100% {
+    box-shadow: 0 0 20px var(--glow-color), 0 0 40px var(--glow-color);
+    opacity: 1;
+  }
+  50% {
+    box-shadow: 0 0 30px var(--glow-color), 0 0 60px var(--glow-color);
+    opacity: 0.8;
+  }
+}
+
+.animate-pulse-glow-dynamic {
+  animation: pulse-glow-dynamic 2s ease-in-out infinite;
 }

@@ -26,6 +26,7 @@ export interface Metric {
   blink_count: number;
   head_pose: string;
   face_detected: boolean;
+  image_url?: string; // Supabase Storage URL for captured image
 }
 
 export interface LeaderboardEntry {
@@ -35,4 +36,16 @@ export interface LeaderboardEntry {
   smile_percentage: number;
   emotion: string;
   screenshot_url?: string;
+}
+
+export interface TimeCapsuleEvent {
+  id: string;
+  name: string;
+  description?: string;
+  start_time: string;
+  end_time?: string;
+  include_challenges: boolean;
+  collage_url?: string;
+  created_at: string;
+  user_id?: string;
 }

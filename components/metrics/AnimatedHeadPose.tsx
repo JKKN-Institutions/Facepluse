@@ -1,14 +1,38 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { User } from 'lucide-react'
 
 export function AnimatedHeadPose({ pose }: { pose: 'left' | 'center' | 'right' }) {
+  // Track window width for responsive behavior
+  // Default to desktop size for SSR, update on client
+  const [windowWidth, setWindowWidth] = useState(1024)
+
+  useEffect(() => {
+    // Set initial width
+    setWindowWidth(window.innerWidth)
+
+    // Update on resize
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth)
+    }
+
+    window.addEventListener('resize', handleResize)
+
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [])
+
   const iconPositions = {
     left: -12,
     center: 0,
     right: 12,
   }
+
+  // Calculate scale based on window width
+  const scale = windowWidth < 768 ? 0.7 : 1
 
   return (
     <motion.div
@@ -21,7 +45,7 @@ export function AnimatedHeadPose({ pose }: { pose: 'left' | 'center' | 'right' }
       {/* Premium Icon Badge with Motion - Responsive */}
       <div className="w-8 h-8 md:w-10 md:h-10 mx-auto mb-1.5 md:mb-2 bg-gradient-to-br from-teal-100 via-emerald-200 to-green-300 rounded-lg md:rounded-xl flex items-center justify-center shadow-md border border-emerald-300/50 relative overflow-hidden">
         <motion.div
-          animate={{ x: iconPositions[pose] * (window.innerWidth < 768 ? 0.7 : 1) }}
+          animate={{ x: iconPositions[pose] * scale }}
           transition={{ type: "spring", stiffness: 250, damping: 20 }}
         >
           <User className="w-4 h-4 md:w-5 md:h-5 text-emerald-600" />

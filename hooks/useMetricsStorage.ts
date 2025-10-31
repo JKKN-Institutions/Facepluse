@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, RefObject } from 'react';
 import { supabase, Metric } from '@/lib/supabase/client';
 import { FaceAnalysis } from '@/types/face';
+import { uploadImage } from '@/lib/supabase/uploadImage';
 
 export function useMetricsStorage(
   sessionId: string | null,
@@ -38,6 +39,12 @@ export function useMetricsStorage(
   };
 
   const saveMetric = async (sessionId: string, analysis: FaceAnalysis, blinkCount: number) => {
+    // Skip if using temporary session ID
+    if (sessionId.startsWith('temp-')) {
+      console.log('⚠️ Skipping metric save for temporary session:', sessionId);
+      return null;
+    }
+
     try {
       console.log('🔵 Attempting to save metric:', {
         sessionId,
@@ -45,7 +52,21 @@ export function useMetricsStorage(
         smile: analysis.smile_percentage
       });
 
-      const { data, error } = await supabase
+      // Capture and upload image to Supabase Storage
+      const frameData = captureFrame();
+      let imageUrl: string | null = null;
+
+      if (frameData) {
+        console.log('📸 Uploading captured image...');
+        imageUrl = await uploadImage(frameData, 'mood-captures');
+        if (imageUrl) {
+          console.log('✅ Image uploaded:', imageUrl);
+        } else {
+          console.warn('⚠️ Image upload failed, continuing without image');
+        }
+      }
+
+      const { data, error} = await supabase
         .from('metrics')
         .insert({
           session_id: sessionId,
@@ -56,6 +77,7 @@ export function useMetricsStorage(
           blink_count: blinkCount,
           head_pose: analysis.head_pose,
           face_detected: analysis.face_detected,
+          image_url: imageUrl, // Add uploaded image URL
         })
         .select()
         .single();
@@ -65,7 +87,7 @@ export function useMetricsStorage(
         throw error;
       }
 
-      console.log('🟢 Metric saved successfully:', data);
+      console.log('🟢 Metric saved successfully with image:', data);
       setLastMetric(data);
 
       // Update leaderboard if high smile
@@ -101,6 +123,12 @@ export function useMetricsStorage(
   };
 
   const getLastMetric = async (sessionId: string) => {
+    // Skip if using temporary session ID
+    if (sessionId.startsWith('temp-')) {
+      console.log('⚠️ Skipping metric fetch for temporary session:', sessionId);
+      return null;
+    }
+
     try {
       const { data, error } = await supabase
         .from('metrics')

@@ -13,7 +13,15 @@ export async function POST(request: Request) {
   let emotion: string = '';
 
   try {
-    const body = await request.json();
+    // Parse request body with error handling
+    let body;
+    try {
+      body = await request.json();
+    } catch (jsonError) {
+      console.error('JSON parsing error:', jsonError);
+      return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
+    }
+
     emotion = body.emotion;
 
     if (!emotion) {
@@ -28,7 +36,7 @@ export async function POST(request: Request) {
 
     // Generate quote using OpenAI
     const response = await openai.chat.completions.create({
-      model: 'GPT-4.1 mini',
+      model: 'gpt-4o-mini',
       messages: [
         {
           role: 'system',
