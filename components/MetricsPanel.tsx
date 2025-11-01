@@ -7,15 +7,15 @@ import { AnimatedBlinkCard } from './metrics/AnimatedBlinkCard'
 import { AnimatedHeadPose } from './metrics/AnimatedHeadPose'
 
 interface MetricsPanelProps {
-  analysis: FaceAnalysis | null
+  analysis: FaceAnalysis
   blinkCount: number
 }
 
 export function MetricsPanel({ analysis, blinkCount }: MetricsPanelProps) {
-  const smilePercentage = analysis?.smile_percentage || 0
-  const emotion = analysis?.emotion || 'neutral'
-  const emotionConfidence = analysis?.emotion_confidence || 0
-  const headPose = analysis?.head_pose || 'center'
+  const smilePercentage = analysis.smile_percentage || 0
+  const emotion = analysis.emotion || 'neutral'
+  const emotionConfidence = analysis.emotion_confidence || 0
+  const headPose = analysis.head_pose || 'center'
 
   return (
     <div className="space-y-3 md:space-y-4">

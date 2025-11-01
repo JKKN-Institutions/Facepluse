@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { TimeCapsule } from '@/types/timeCapsule';
-import { ArrowLeft, Download, Film, Sparkles, TrendingUp, Image } from 'lucide-react';
+import { ArrowLeft, Download, Film, Sparkles, TrendingUp, Image as ImageIcon } from 'lucide-react';
 import { emotionEmojis } from '@/lib/emotion-themes';
 import { downloadCollage } from '@/lib/collageGenerator';
 import { useState } from 'react';
@@ -114,7 +114,7 @@ export function EventDetailView({
             animate={{ opacity: 1, scale: 1 }}
             className="glass-premium rounded-2xl p-12 text-center"
           >
-            <Image className="w-16 h-16 mx-auto mb-4 text-emerald-500" alt="Collage icon" />
+            <ImageIcon className="w-16 h-16 mx-auto mb-4 text-emerald-500" />
             <h3 className="text-2xl font-bold mb-2">Create Your Collage</h3>
             <p className="text-gray-600 mb-6">
               Generate a beautiful PNG collage from all your captured emotional moments

@@ -21,7 +21,8 @@ export function useMetricsStorage(
 
     try {
       const video = videoRef.current;
-      if (video.readyState !== 4) return null;
+      // readyState >= 3 means HAVE_FUTURE_DATA or better
+      if (video.readyState < 3) return null;
 
       const canvas = document.createElement('canvas');
       canvas.width = video.videoWidth;

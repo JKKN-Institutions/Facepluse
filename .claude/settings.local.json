@@ -9,7 +9,13 @@
       "Bash(npm install:*)",
       "Bash(npm run build:*)",
       "mcp__supabase__execute_sql",
-      "mcp__supabase__list_migrations"
+      "mcp__supabase__list_migrations",
+      "Read(//c/Users/brabu/Pictures/Screenshots/**)",
+      "Read(//c/Users/brabu/AppData/Local/claude-cli-nodejs/Cache/C--Users-brabu-Documents-GitHub-Facepluse/mcp-logs-filesystem/**)",
+      "Read(//c/Users/brabu/AppData/Local/claude-cli-nodejs/Cache/C--Users-brabu-Documents-GitHub-Facepluse/mcp-logs-supabase/**)",
+      "Read(//c/Users/brabu/AppData/Local/claude-cli-nodejs/Cache/**)",
+      "Bash(npx -y @supabase/mcp-server-supabase@latest --project-ref=gjgmjkapgtefuovmrydw --access-token=sbp_3fd9c6303ecf9593a8f26991d18d9b7eb504d68e)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []

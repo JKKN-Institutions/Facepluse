@@ -1,7 +1,12 @@
 'use client';
 
+import { memo } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
+
+// Create motion-enabled Link component for modern Next.js
+const MotionLink = motion(Link);
 import {
   Home,
   BarChart3,
@@ -58,9 +63,8 @@ const navigationItems = [
   },
 ];
 
-export function Sidebar({ open, onOpen, onClose }: SidebarProps) {
+export const Sidebar = memo(function Sidebar({ open, onOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
-  const router = useRouter();
 
   return (
     <motion.aside
@@ -120,27 +124,20 @@ export function Sidebar({ open, onOpen, onClose }: SidebarProps) {
           const Icon = item.icon;
 
           return (
-            <motion.button
+            <MotionLink
               key={item.href}
-              onClick={() => router.push(item.href)}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.05 }}
-              whileHover={{ scale: 1.03, x: open ? 6 : 0 }}
-              whileTap={{ scale: 0.97 }}
-              className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-300 group relative overflow-hidden ${
+              href={item.href}
+              className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-200 group relative overflow-hidden cursor-pointer ${
                 isActive
                   ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white shadow-emerald-lg'
                   : 'text-gray-700 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-green-50 hover:shadow-md'
               }`}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
               {/* Active indicator glow */}
               {isActive && (
-                <motion.div
-                  layoutId="activeTab"
-                  className="absolute inset-0 bg-gradient-to-r from-green-400 to-emerald-500 rounded-2xl"
-                  transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                />
+                <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-emerald-500 rounded-2xl" />
               )}
 
               {/* Icon with animation */}
@@ -184,10 +181,10 @@ export function Sidebar({ open, onOpen, onClose }: SidebarProps) {
               {!isActive && (
                 <Sparkles className="w-3 h-3 absolute top-2 right-2 text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity" />
               )}
-            </motion.button>
+            </MotionLink>
           );
         })}
       </nav>
     </motion.aside>
   );
-}
+});

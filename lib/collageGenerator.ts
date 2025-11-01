@@ -91,6 +91,8 @@ export async function generateCollage(
 
     moments.forEach((moment, index) => {
       const img = new Image();
+      // Enable CORS to prevent canvas taint error when calling toDataURL()
+      img.crossOrigin = 'anonymous';
 
       img.onload = () => {
         const col = index % cols;
@@ -115,8 +117,30 @@ export async function generateCollage(
         }
       };
 
-      img.onerror = () => {
-        console.error('Failed to load image:', index);
+      img.onerror = (error) => {
+        console.error(`Failed to load image ${index}:`, error);
+        console.warn(`Image URL: ${moment.imageData?.substring(0, 100)}...`);
+        console.warn('This might be a CORS issue. Ensure Supabase Storage has CORS enabled.');
+
+        // Draw placeholder for failed image
+        const col = index % cols;
+        const row = Math.floor(index / cols);
+        const x = paddingX + col * (photoSize + spacing);
+        const y = headerHeight + paddingY + row * (photoSize + spacing);
+
+        // Gray placeholder
+        ctx.fillStyle = '#E5E7EB';
+        ctx.beginPath();
+        ctx.roundRect(x, y, photoSize, photoSize, 12);
+        ctx.fill();
+
+        // Error icon
+        ctx.fillStyle = '#6B7280';
+        ctx.font = '48px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('❌', x + photoSize / 2, y + photoSize / 2);
+
         loadedImages++;
 
         // Continue even if some images fail

@@ -47,7 +47,7 @@ export function CreateEventForm({ onClose, onCreate }: CreateEventFormProps) {
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
         className="fixed inset-0 flex items-center justify-center z-50 p-4"
       >
-        <div className="glass-premium rounded-2xl p-8 max-w-md w-full shadow-2xl">
+        <div className="glass-premium rounded-2xl p-4 sm:p-6 md:p-8 max-w-md w-full max-h-[90vh] overflow-y-auto shadow-2xl my-4 sm:my-8">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-12 h-12 rounded-full bg-gradient-to-r from-emerald-500 to-green-600 flex items-center justify-center">
               <Film className="w-6 h-6 text-white" />
@@ -55,7 +55,7 @@ export function CreateEventForm({ onClose, onCreate }: CreateEventFormProps) {
             <h2 className="text-2xl font-bold text-gray-800">Create Time Capsule</h2>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
             {/* Event Name */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -66,7 +66,7 @@ export function CreateEventForm({ onClose, onCreate }: CreateEventFormProps) {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g., Team Meeting, Birthday Party"
-                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-emerald-500 focus:outline-none transition-colors"
+                className="w-full px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl border-2 border-gray-200 focus:border-emerald-500 focus:outline-none transition-colors"
                 required
               />
             </div>
@@ -81,7 +81,7 @@ export function CreateEventForm({ onClose, onCreate }: CreateEventFormProps) {
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Add details about this event..."
                 rows={2}
-                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-emerald-500 focus:outline-none transition-colors resize-none"
+                className="w-full px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl border-2 border-gray-200 focus:border-emerald-500 focus:outline-none transition-colors resize-none"
               />
             </div>
 
@@ -91,13 +91,13 @@ export function CreateEventForm({ onClose, onCreate }: CreateEventFormProps) {
                 <Clock className="w-4 h-4 inline mr-2" />
                 Duration
               </label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {DURATION_OPTIONS.map((option) => (
                   <button
                     key={option.label}
                     type="button"
                     onClick={() => setDuration(option.value)}
-                    className={`px-4 py-3 rounded-xl font-semibold transition-all ${
+                    className={`px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl font-semibold transition-all ${
                       duration === option.value
                         ? 'bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-lg'
                         : 'border-2 border-gray-300 hover:border-emerald-500 text-gray-700'
@@ -147,14 +147,14 @@ export function CreateEventForm({ onClose, onCreate }: CreateEventFormProps) {
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 px-4 py-3 rounded-xl border-2 border-gray-300 hover:bg-gray-50 font-semibold transition-colors"
+                className="flex-1 px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl border-2 border-gray-300 hover:bg-gray-50 font-semibold transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={!name.trim()}
-                className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Start Event
               </button>

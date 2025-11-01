@@ -233,7 +233,7 @@ function ChallengeCard({ challenge, onEvaluate, timeRemaining }: any) {
           transition={{ duration: 1, repeat: Infinity }}
           className="text-9xl md:text-[12rem] block mb-6"
         >
-          {emotionEmojis[challenge.targetEmotion]}
+          {emotionEmojis[challenge.targetEmotion as Emotion]}
         </motion.span>
 
         <p className="text-4xl md:text-5xl font-bold mb-8 capitalize bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">

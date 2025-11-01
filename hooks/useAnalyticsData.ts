@@ -1,45 +1,31 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
+import useSWR from 'swr';
 import { supabase } from '@/lib/supabase/client';
 
-export function useAnalyticsData() {
-  const [stats, setStats] = useState({
-    totalSessions: 0,
-    avgSmile: 0,
-    totalDuration: 0,
-    happinessIndex: 0,
-    smileTrends: { labels: [] as string[], data: [] as number[] },
-    emotionDistribution: {} as Record<string, number>,
-    weeklyData: {
-      labels: [] as string[],
-      smileScores: [] as number[],
-      emotionConfidence: [] as number[]
-    },
-  });
-  const [loading, setLoading] = useState(true);
+// Optimized fetcher - single query with limits
+const fetchAnalytics = async () => {
+  try {
+    // Parallel queries for better performance
+    const [
+      { count: totalSessions },
+      { data: metricsData },
+      { data: sessionsData }
+    ] = await Promise.all([
+      // Get total sessions count
+      supabase.from('sessions').select('*', { count: 'exact', head: true }),
 
-  useEffect(() => {
-    fetchAnalytics();
-  }, []);
-
-  const fetchAnalytics = async () => {
-    try {
-      // Fetch total sessions count
-      const { count: totalSessions } = await supabase
-        .from('sessions')
-        .select('*', { count: 'exact', head: true });
-
-      // Fetch all metrics for calculations
-      const { data: metricsData } = await supabase
+      // Limit metrics to last 1000 entries for performance
+      supabase
         .from('metrics')
         .select('smile_percentage, emotion, emotion_confidence, created_at')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(1000),
 
-      // Fetch total duration from sessions
-      const { data: sessionsData } = await supabase
-        .from('sessions')
-        .select('total_duration, created_at');
+      // Fetch sessions data
+      supabase.from('sessions').select('total_duration, created_at')
+    ]);
 
       // Calculate average smile
       const avgSmile = metricsData && metricsData.length > 0
@@ -118,28 +104,75 @@ export function useAnalyticsData() {
 
       const weeklyLabels = last7Days.map(date => dayNames[date.getDay()]);
 
-      setStats({
-        totalSessions: totalSessions || 0,
-        avgSmile,
-        totalDuration,
-        happinessIndex,
-        smileTrends: {
-          labels: weeklyLabels,
-          data: smileTrendsData,
-        },
-        emotionDistribution,
-        weeklyData: {
-          labels: weeklyLabels,
-          smileScores: smileTrendsData,
-          emotionConfidence: emotionConfidenceData,
-        },
-      });
-    } catch (error) {
-      console.error('Error fetching analytics:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    return {
+      totalSessions: totalSessions || 0,
+      avgSmile,
+      totalDuration,
+      happinessIndex,
+      smileTrends: {
+        labels: weeklyLabels,
+        data: smileTrendsData,
+      },
+      emotionDistribution,
+      weeklyData: {
+        labels: weeklyLabels,
+        smileScores: smileTrendsData,
+        emotionConfidence: emotionConfidenceData,
+      },
+    };
+  } catch (error) {
+    console.error('Error fetching analytics:', error);
+    return {
+      totalSessions: 0,
+      avgSmile: 0,
+      totalDuration: 0,
+      happinessIndex: 0,
+      smileTrends: { labels: [], data: [] },
+      emotionDistribution: {},
+      weeklyData: {
+        labels: [],
+        smileScores: [],
+        emotionConfidence: []
+      },
+    };
+  }
+};
 
-  return { stats, loading };
+export function useAnalyticsData() {
+  // Use SWR for caching and automatic revalidation
+  const { data: stats, error, isLoading } = useSWR(
+    'analytics-data',
+    fetchAnalytics,
+    {
+      // Cache for 5 minutes
+      dedupingInterval: 300000,
+      // Don't revalidate on focus for better performance
+      revalidateOnFocus: false,
+      // Revalidate when window regains focus after 1 minute
+      focusThrottleInterval: 60000,
+      // Keep previous data while revalidating
+      keepPreviousData: true,
+    }
+  );
+
+  // Default stats while loading or on error
+  const defaultStats = useMemo(() => ({
+    totalSessions: 0,
+    avgSmile: 0,
+    totalDuration: 0,
+    happinessIndex: 0,
+    smileTrends: { labels: [] as string[], data: [] as number[] },
+    emotionDistribution: {} as Record<string, number>,
+    weeklyData: {
+      labels: [] as string[],
+      smileScores: [] as number[],
+      emotionConfidence: [] as number[]
+    },
+  }), []);
+
+  return {
+    stats: stats || defaultStats,
+    loading: isLoading,
+    error,
+  };
 }

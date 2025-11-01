@@ -1,6 +1,7 @@
 'use client'
 
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { Camera } from '@/components/Camera'
 import { MetricsPanel } from '@/components/MetricsPanel'
 import { CompactLeaderboard } from '@/components/CompactLeaderboard'
@@ -65,16 +66,16 @@ export default function Home() {
   }, [sessionStart])
 
   // Trigger confetti when smile reaches 90%
-  useConfetti(analysis?.smile_percentage || 0)
+  useConfetti(analysis.smile_percentage || 0)
 
   // Show "Session ending..." message when face disappears
   useEffect(() => {
-    if (!analysis?.face_detected && capturedEmotions.length > 0) {
+    if (!analysis.face_detected && capturedEmotions.length > 0) {
       setShowEndingMessage(true)
     } else {
       setShowEndingMessage(false)
     }
-  }, [analysis?.face_detected, capturedEmotions.length])
+  }, [analysis.face_detected, capturedEmotions.length])
 
   // Helper functions for emotion capture
   const captureVideoFrame = () => {
@@ -82,7 +83,8 @@ export default function Home() {
 
     try {
       const video = videoRef.current
-      if (video.readyState !== 4) return null
+      // readyState >= 3 means HAVE_FUTURE_DATA or better
+      if (video.readyState < 3) return null
 
       const canvas = document.createElement('canvas')
       canvas.width = video.videoWidth
@@ -112,7 +114,7 @@ export default function Home() {
   }
 
   const handleEmotionCapture = useCallback(async () => {
-    if (!analysis?.face_detected || !analysis?.emotion) return
+    if (!analysis.face_detected || !analysis.emotion) return
 
     console.log('📸 Starting emotion capture for:', analysis.emotion)
 
@@ -178,18 +180,18 @@ export default function Home() {
   // Check emotion stability and trigger capture for new emotions
   useEffect(() => {
     console.log('🔄 Emotion capture effect running', {
-      faceDetected: analysis?.face_detected,
-      emotion: analysis?.emotion,
+      faceDetected: analysis.face_detected,
+      emotion: analysis.emotion,
       sessionId,
       sessionLoading
     })
 
-    if (!analysis?.face_detected) {
+    if (!analysis.face_detected) {
       console.log('⏸️ No face detected - skipping capture check')
       return
     }
 
-    if (!analysis?.emotion) {
+    if (!analysis.emotion) {
       console.log('⏸️ No emotion detected - skipping capture check')
       return
     }
@@ -248,7 +250,7 @@ export default function Home() {
         console.log('⏭️ Cooldown not passed yet, waiting...')
       }
     }
-  }, [analysis?.face_detected, analysis?.emotion, sessionId, sessionLoading, capturedEmotions, handleEmotionCapture])
+  }, [analysis.face_detected, analysis.emotion, analysis.smile_percentage, analysis.emotion_confidence, sessionId, sessionLoading, handleEmotionCapture])
 
   const handleRecapture = () => {
     // Remove the last captured emotion to allow re-capture
@@ -285,14 +287,15 @@ export default function Home() {
   // This ensures users can always use the app, with or without session tracking
 
   return (
-    <DashboardLayout>
+    <ErrorBoundary>
+      <DashboardLayout>
         {/* Responsive Layout: Vertical on mobile/tablet, horizontal on desktop */}
         <div className="h-full flex flex-col lg:flex-row overflow-hidden">
           {/* Camera Section - Takes full width on mobile/tablet, scrollable */}
           <div className="flex-1 overflow-y-auto relative z-0">
             <div className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8 space-y-6">
               {/* Emotion Quote - Above Camera */}
-              {analysis?.face_detected && (
+              {analysis.face_detected && (
                 <EmotionQuote emotion={analysis.emotion} />
               )}
 
@@ -367,5 +370,6 @@ export default function Home() {
         {/* Footer */}
         <Footer />
       </DashboardLayout>
+    </ErrorBoundary>
   )
 }

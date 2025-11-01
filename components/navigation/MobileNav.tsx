@@ -1,9 +1,14 @@
 'use client';
 
+import { memo, useCallback } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { Home, BarChart3, History, Trophy, Activity, Sparkles, Target, Film } from 'lucide-react';
+
+// Create motion-enabled Link component for modern Next.js
+const MotionLink = motion(Link);
 
 interface MobileNavProps {
   open: boolean;
@@ -49,27 +54,26 @@ const navigationItems = [
   },
 ];
 
-export function MobileNav({ open, onClose }: MobileNavProps) {
+export const MobileNav = memo(function MobileNav({ open, onClose }: MobileNavProps) {
   const pathname = usePathname();
-  const router = useRouter();
 
-  const handleNavigate = (href: string) => {
-    router.push(href);
+  // Memoize close handler to prevent re-creating on every render
+  const handleClose = useCallback(() => {
     onClose();
-  };
+  }, [onClose]);
 
   return (
     <AnimatePresence>
       {open && (
         <>
-          {/* Backdrop with blur */}
+          {/* Backdrop - removed blur for better mobile performance */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+            onClick={handleClose}
+            className="fixed inset-0 bg-black/80 z-40 lg:hidden will-change-transform"
           />
 
           {/* Sidebar Panel */}
@@ -130,14 +134,12 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
                 const Icon = item.icon;
 
                 return (
-                  <motion.button
+                  <MotionLink
                     key={item.href}
-                    onClick={() => handleNavigate(item.href)}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.1 + index * 0.05 }}
-                    whileTap={{ scale: 0.97 }}
-                    className={`w-full flex items-center gap-4 px-4 py-4 rounded-2xl transition-all duration-300 group relative overflow-hidden ${
+                    href={item.href}
+                    onClick={handleClose}
+                    whileTap={{ scale: 0.98 }}
+                    className={`w-full flex items-center gap-4 px-4 py-4 rounded-2xl transition-all duration-200 group relative overflow-hidden cursor-pointer ${
                       isActive
                         ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white shadow-emerald-lg'
                         : 'text-gray-700 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-green-50 hover:shadow-md active:scale-95'
@@ -145,23 +147,16 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
                   >
                     {/* Active indicator */}
                     {isActive && (
-                      <motion.div
-                        layoutId="mobileActiveTab"
-                        className="absolute inset-0 bg-gradient-to-r from-green-400 to-emerald-500 rounded-2xl"
-                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                      />
+                      <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-emerald-500 rounded-2xl" />
                     )}
 
                     {/* Icon */}
-                    <motion.div
-                      whileHover={{ rotate: 12, scale: 1.1 }}
-                      className="relative z-10"
-                    >
+                    <div className="relative z-10">
                       <Icon
-                        className={`w-6 h-6 ${isActive ? 'drop-shadow-sm' : ''}`}
+                        className={`w-6 h-6 transition-transform ${isActive ? 'drop-shadow-sm' : 'group-hover:scale-110'}`}
                         strokeWidth={2.5}
                       />
-                    </motion.div>
+                    </div>
 
                     {/* Text */}
                     <div className="flex flex-col items-start flex-1 relative z-10">
@@ -184,13 +179,9 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
 
                     {/* Active checkmark */}
                     {isActive && (
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="w-2 h-2 bg-white rounded-full relative z-10"
-                      />
+                      <div className="w-2 h-2 bg-white rounded-full relative z-10" />
                     )}
-                  </motion.button>
+                  </MotionLink>
                 );
               })}
             </nav>
@@ -199,4 +190,4 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
       )}
     </AnimatePresence>
   );
-}
+});

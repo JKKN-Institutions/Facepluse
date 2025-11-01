@@ -10,7 +10,7 @@ interface CameraProps {
   videoRef: RefObject<HTMLVideoElement | null>
   loading: boolean
   error: string | null
-  analysis: FaceAnalysis | null
+  analysis: FaceAnalysis
   analyzing: boolean
   faceDetection: faceapi.WithFaceLandmarks<{detection: faceapi.FaceDetection}, faceapi.FaceLandmarks68> | null
 }
@@ -36,10 +36,16 @@ export function Camera({ videoRef, loading, error, analysis, analyzing, faceDete
     const canvas = canvasRef.current
     const video = videoRef.current
 
-    // Match canvas size to video
+    // Match canvas size to video with fallback dimensions
     const displaySize = {
-      width: video.videoWidth,
-      height: video.videoHeight,
+      width: video.videoWidth || 640,
+      height: video.videoHeight || 480,
+    }
+
+    // Guard against invalid dimensions
+    if (displaySize.width === 0 || displaySize.height === 0) {
+      console.warn('⚠️ Video dimensions not ready yet, skipping canvas update')
+      return
     }
 
     faceapi.matchDimensions(canvas, displaySize)

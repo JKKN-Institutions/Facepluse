@@ -110,7 +110,7 @@ export function EventCard({ event, onView, onDelete }: EventCardProps) {
         className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 shadow-md transition-all"
       >
         <Play className="w-4 h-4" />
-        {event.videoUrl ? 'Watch Montage' : 'View Details'}
+        {(event as any).videoUrl ? 'Watch Montage' : 'View Details'}
       </motion.button>
     </motion.div>
   );

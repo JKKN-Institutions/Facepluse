@@ -39,8 +39,8 @@ export function useFaceDetection(
     try {
       const video = videoRef.current;
 
-      // Make sure video is ready
-      if (video.readyState !== 4) return null;
+      // Make sure video is ready (readyState >= 3 means HAVE_FUTURE_DATA or better)
+      if (video.readyState < 3) return null;
 
       const canvas = document.createElement('canvas');
       canvas.width = video.videoWidth;

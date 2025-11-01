@@ -19,7 +19,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
       {/* Content */}
       <div className="relative z-10 h-full">
-        <main className="h-full overflow-hidden">{children}</main>
+        <main className="h-full overflow-auto">{children}</main>
       </div>
     </div>
   )
