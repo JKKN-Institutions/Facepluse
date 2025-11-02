@@ -22,7 +22,7 @@ import { Metric } from '@/lib/supabase/client'
 
 export default function Home() {
   const { videoRef, loading, error } = useCamera()
-  const { analysis, analyzing, blinkCount, faceDetection } = useFaceAnalysis(videoRef)
+  const { analysis, analyzing, blinkCount, faceDetection, countdown, isReady } = useFaceAnalysis(videoRef)
 
   // Supabase integration
   const { sessionId, loading: sessionLoading, sessionStart } = useSupabaseSession()
@@ -183,8 +183,14 @@ export default function Home() {
       faceDetected: analysis.face_detected,
       emotion: analysis.emotion,
       sessionId,
-      sessionLoading
+      sessionLoading,
+      isReady
     })
+
+    if (!isReady) {
+      console.log('⏸️ Countdown not finished - skipping capture check')
+      return
+    }
 
     if (!analysis.face_detected) {
       console.log('⏸️ No face detected - skipping capture check')
@@ -250,7 +256,7 @@ export default function Home() {
         console.log('⏭️ Cooldown not passed yet, waiting...')
       }
     }
-  }, [analysis.face_detected, analysis.emotion, analysis.smile_percentage, analysis.emotion_confidence, sessionId, sessionLoading, handleEmotionCapture])
+  }, [analysis.face_detected, analysis.emotion, analysis.smile_percentage, analysis.emotion_confidence, sessionId, sessionLoading, isReady, handleEmotionCapture])
 
   const handleRecapture = () => {
     // Remove the last captured emotion to allow re-capture
@@ -302,7 +308,16 @@ export default function Home() {
               {/* Camera Section - Centered */}
               <div className="flex items-center justify-center">
                 <div className="w-full max-w-4xl relative">
-                  <Camera videoRef={videoRef} loading={loading} error={error} analysis={analysis} analyzing={analyzing} faceDetection={faceDetection} />
+                  <Camera
+                    videoRef={videoRef}
+                    loading={loading}
+                    error={error}
+                    analysis={analysis}
+                    analyzing={analyzing}
+                    faceDetection={faceDetection}
+                    countdown={countdown}
+                    isReady={isReady}
+                  />
 
                   {/* Session Ending Message */}
                   {showEndingMessage && !showExitPopup && (

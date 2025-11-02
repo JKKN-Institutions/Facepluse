@@ -23,6 +23,12 @@ export function useFaceAnalysis(videoRef: RefObject<HTMLVideoElement | null>) {
   const lastEyeState = useRef<'open' | 'closed'>('open')
   const blinkFrameCount = useRef(0)
 
+  // Countdown and preparation phase
+  const [countdown, setCountdown] = useState(0)
+  const [isReady, setIsReady] = useState(false)
+  const countdownStartedRef = useRef(false)
+  const faceFirstDetectedRef = useRef(false)
+
   // Get theme context for dynamic emotion-based themes
   const { setEmotion } = useTheme()
   const lastEmotionRef = useRef<string | null>(null)
@@ -125,9 +131,57 @@ export function useFaceAnalysis(videoRef: RefObject<HTMLVideoElement | null>) {
     }
   }
 
-  // Analyze face from video
+  // Handle countdown when face is first detected
   useEffect(() => {
     if (!modelsLoaded) return
+
+    const checkForFace = setInterval(async () => {
+      if (!videoRef.current || videoRef.current.readyState < 3) return
+      if (countdownStartedRef.current) return // Countdown already started
+
+      try {
+        // Quick face detection to trigger countdown
+        const detection = await faceapi
+          .detectSingleFace(
+            videoRef.current,
+            new faceapi.TinyFaceDetectorOptions({
+              inputSize: 608,
+              scoreThreshold: 0.3
+            })
+          )
+
+        if (detection && !faceFirstDetectedRef.current) {
+          // Face detected for the first time - start countdown
+          console.log('🎯 Face detected! Starting countdown...')
+          faceFirstDetectedRef.current = true
+          countdownStartedRef.current = true
+          setCountdown(3)
+
+          // Countdown timer
+          let count = 3
+          const countdownInterval = setInterval(() => {
+            count--
+            if (count > 0) {
+              setCountdown(count)
+            } else {
+              setCountdown(0)
+              setIsReady(true)
+              console.log('✅ Countdown complete! Starting analysis...')
+              clearInterval(countdownInterval)
+            }
+          }, 1000)
+        }
+      } catch (error) {
+        console.error('Face detection check failed:', error)
+      }
+    }, 200)
+
+    return () => clearInterval(checkForFace)
+  }, [modelsLoaded, videoRef])
+
+  // Analyze face from video (only after countdown is complete)
+  useEffect(() => {
+    if (!modelsLoaded || !isReady) return
 
     const interval = setInterval(async () => {
       if (!videoRef.current || videoRef.current.readyState < 3) return
@@ -273,7 +327,7 @@ export function useFaceAnalysis(videoRef: RefObject<HTMLVideoElement | null>) {
     }, 200) // Analyze every 200ms for responsive blink/head pose detection
 
     return () => clearInterval(interval)
-  }, [videoRef, analyzing, modelsLoaded])
+  }, [videoRef, analyzing, modelsLoaded, isReady])
 
-  return { analysis, analyzing, blinkCount, faceDetection }
+  return { analysis, analyzing, blinkCount, faceDetection, countdown, isReady }
 }

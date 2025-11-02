@@ -5,6 +5,7 @@ import { FaceAnalysis } from '@/types/face'
 import { motion, AnimatePresence } from 'framer-motion'
 import { AlertCircle, CheckCircle, Camera as CameraIcon } from 'lucide-react'
 import * as faceapi from 'face-api.js'
+import { StartingCountdown } from './StartingCountdown'
 
 interface CameraProps {
   videoRef: RefObject<HTMLVideoElement | null>
@@ -13,9 +14,11 @@ interface CameraProps {
   analysis: FaceAnalysis
   analyzing: boolean
   faceDetection: faceapi.WithFaceLandmarks<{detection: faceapi.FaceDetection}, faceapi.FaceLandmarks68> | null
+  countdown?: number
+  isReady?: boolean
 }
 
-export function Camera({ videoRef, loading, error, analysis, analyzing, faceDetection }: CameraProps) {
+export function Camera({ videoRef, loading, error, analysis, analyzing, faceDetection, countdown = 0, isReady = true }: CameraProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [showNoFaceMessage, setShowNoFaceMessage] = useState(false)
   const noFaceTimerRef = useRef<NodeJS.Timeout | null>(null)
@@ -248,7 +251,7 @@ export function Camera({ videoRef, loading, error, analysis, analyzing, faceDete
 
           {/* Center Prompt if No Face - Responsive with debounce */}
           <AnimatePresence>
-            {showNoFaceMessage && !analyzing && (
+            {showNoFaceMessage && !analyzing && isReady && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -264,6 +267,9 @@ export function Camera({ videoRef, loading, error, analysis, analyzing, faceDete
               </motion.div>
             )}
           </AnimatePresence>
+
+          {/* Starting Countdown Overlay */}
+          <StartingCountdown countdown={countdown} isVisible={!isReady} />
         </div>
       </motion.div>
     </div>
