@@ -33,7 +33,6 @@ export function useLeaderboardSupabase() {
 
       // If no new entries found, reset the rotation cycle
       if (!data || data.length === 0) {
-        console.log('🔄 No more new entries - resetting rotation cycle');
         setShownEntryIds([]); // Reset shown list
 
         // Fetch from beginning again
@@ -45,10 +44,8 @@ export function useLeaderboardSupabase() {
           .limit(5);
 
         if (resetError) throw resetError;
-        console.log(`✅ Reset: Fetched ${resetData?.length || 0} top smiles`);
         setEntries(resetData || []);
       } else {
-        console.log(`✅ Fetched ${data.length} new top smiles (excluding ${shownEntryIds.length} already shown)`);
         setEntries(data);
       }
     } catch (error) {
@@ -72,13 +69,11 @@ export function useLeaderboardSupabase() {
 
     // Auto-refresh every 30 seconds (to get new entries as they come)
     const refreshInterval = setInterval(() => {
-      console.log('🔄 Auto-refreshing leaderboard...');
       fetchLeaderboard();
     }, 30000); // 30 seconds
 
     // Rotate to next batch every 10 minutes
     rotationTimerRef.current = setInterval(() => {
-      console.log('🔄 Rotating to next top 5 smiles...');
       rotateToNextBatch();
     }, 600000); // 10 minutes = 600,000ms
 
@@ -93,7 +88,6 @@ export function useLeaderboardSupabase() {
           table: 'leaderboard',
         },
         (payload) => {
-          console.log('📨 Real-time update received:', payload.new);
           // Fetch fresh data to maintain proper rotation
           fetchLeaderboard();
         }

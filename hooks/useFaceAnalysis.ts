@@ -37,13 +37,7 @@ export function useFaceAnalysis(videoRef: RefObject<HTMLVideoElement | null>) {
   useEffect(() => {
     const loadModels = async () => {
       try {
-        console.log('Loading face-api.js models from /models...')
         const MODEL_URL = '/models'
-
-        // Set a timeout for model loading
-        const modelLoadingTimeout = setTimeout(() => {
-          console.warn('Model loading is taking longer than expected...')
-        }, 5000)
 
         await Promise.all([
           faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
@@ -52,13 +46,9 @@ export function useFaceAnalysis(videoRef: RefObject<HTMLVideoElement | null>) {
           faceapi.nets.ageGenderNet.loadFromUri(MODEL_URL),
         ])
 
-        clearTimeout(modelLoadingTimeout)
-        console.log('✅ All face-api.js models loaded successfully!')
         setModelsLoaded(true)
       } catch (error) {
         console.error('❌ Error loading face-api.js models:', error)
-        console.error('Make sure /public/models directory contains all required model files')
-        console.error('Face detection will NOT work until models are loaded properly')
         // DO NOT set modelsLoaded to true on error - let it stay false
         // This prevents broken face detection from running
         setModelsLoaded(false)
@@ -103,25 +93,13 @@ export function useFaceAnalysis(videoRef: RefObject<HTMLVideoElement | null>) {
       const EAR_THRESHOLD = 0.25
       const currentEyeState = avgEAR < EAR_THRESHOLD ? 'closed' : 'open'
 
-      console.log('👁️ Eye state check:', {
-        leftEAR: leftEAR.toFixed(3),
-        rightEAR: rightEAR.toFixed(3),
-        avgEAR: avgEAR.toFixed(3),
-        threshold: EAR_THRESHOLD,
-        currentState: currentEyeState,
-        frameCount: blinkFrameCount.current
-      })
-
       // Require at least 1 frame to confirm blink (100ms at current interval)
       if (currentEyeState === 'closed') {
         blinkFrameCount.current++
       } else {
         // Eyes opened - check if we had a blink
         if (blinkFrameCount.current >= 1 && lastEyeState.current === 'closed') {
-          setBlinkCount((prev) => {
-            console.log('👁️ ✅ BLINK DETECTED! Total blinks:', prev + 1)
-            return prev + 1
-          })
+          setBlinkCount((prev) => prev + 1)
         }
         blinkFrameCount.current = 0
       }
@@ -141,13 +119,8 @@ export function useFaceAnalysis(videoRef: RefObject<HTMLVideoElement | null>) {
       const video = videoRef.current
       if (!video) return
 
-      // Relax readyState requirement & add debugging
+      // Relax readyState requirement
       if (video.readyState < 2 || video.videoWidth === 0) {
-        console.log('⏸️ Video not ready for countdown check:', {
-          readyState: video.readyState,
-          width: video.videoWidth,
-          height: video.videoHeight
-        })
         return
       }
 
@@ -167,7 +140,6 @@ export function useFaceAnalysis(videoRef: RefObject<HTMLVideoElement | null>) {
 
         if (detection && !faceFirstDetectedRef.current) {
           // Face detected for the first time - start countdown
-          console.log('🎯 Face detected! Starting countdown...')
           faceFirstDetectedRef.current = true
           countdownStartedRef.current = true
           setCountdown(3)
@@ -181,7 +153,6 @@ export function useFaceAnalysis(videoRef: RefObject<HTMLVideoElement | null>) {
             } else {
               setCountdown(0)
               setIsReady(true)
-              console.log('✅ Countdown complete! Starting analysis...')
               clearInterval(countdownInterval)
             }
           }, 1000)
@@ -197,7 +168,6 @@ export function useFaceAnalysis(videoRef: RefObject<HTMLVideoElement | null>) {
   // Analyze face from video (only after countdown is complete)
   useEffect(() => {
     if (!modelsLoaded || !isReady) {
-      console.log('⏸️ Analysis not ready:', { modelsLoaded, isReady })
       return
     }
 
@@ -205,19 +175,12 @@ export function useFaceAnalysis(videoRef: RefObject<HTMLVideoElement | null>) {
       const video = videoRef.current
       if (!video) return
 
-      // Relax readyState requirement & add debugging
+      // Relax readyState requirement
       if (video.readyState < 2 || video.videoWidth === 0) {
-        console.log('⏸️ Video not ready for analysis:', {
-          readyState: video.readyState,
-          width: video.videoWidth,
-          height: video.videoHeight,
-          paused: video.paused
-        })
         return
       }
 
       if (analyzing) {
-        console.warn('⏩ Analysis still running, skipping frame')
         return
       }
 
@@ -296,13 +259,6 @@ export function useFaceAnalysis(videoRef: RefObject<HTMLVideoElement | null>) {
           if (headAngle < -10) headPose = 'left'
           else if (headAngle > 10) headPose = 'right'
 
-          console.log('🧭 Head pose detection:', {
-            jawWidth: jawWidth.toFixed(2),
-            noseOffset: noseOffset.toFixed(2),
-            headAngle: headAngle.toFixed(2),
-            pose: headPose
-          })
-
           // Detect blink
           const blinkDetected = detectBlink(landmarks)
 
@@ -318,25 +274,14 @@ export function useFaceAnalysis(videoRef: RefObject<HTMLVideoElement | null>) {
 
           // Update global theme based on detected emotion (only if emotion changed)
           if (emotion !== lastEmotionRef.current && isValidEmotion(emotion)) {
-            console.log('🎨 Updating theme to:', emotion)
             setEmotion(emotion as Emotion)
             lastEmotionRef.current = emotion
           }
 
           // Store full detection data for face shape overlay
           setFaceDetection(detections)
-
-          // Debug logging to see detection status
-          console.log('✅ Face detected:', {
-            smile: smilePercentage,
-            emotion,
-            age,
-            confidence: emotionConfidence,
-            timestamp: new Date().toISOString()
-          })
         } else {
           // No face detected
-          console.log('❌ No face detected')
           setAnalysis({
             face_detected: false,
             smile_percentage: 0,
@@ -354,7 +299,7 @@ export function useFaceAnalysis(videoRef: RefObject<HTMLVideoElement | null>) {
       } finally {
         setAnalyzing(false)
       }
-    }, 200) // Analyze every 200ms for responsive blink/head pose detection
+    }, 300) // Analyze every 300ms for optimal performance
 
     return () => clearInterval(interval)
   }, [videoRef, analyzing, modelsLoaded, isReady])

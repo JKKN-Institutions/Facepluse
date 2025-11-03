@@ -116,8 +116,6 @@ export default function Home() {
   const handleEmotionCapture = useCallback(async () => {
     if (!analysis.face_detected || !analysis.emotion) return
 
-    console.log('📸 Starting emotion capture for:', analysis.emotion)
-
     const isFirstCapture = capturedEmotions.length === 0
 
     // Add emotion to captured list
@@ -131,33 +129,16 @@ export default function Home() {
 
     // Capture current video frame
     const frameImage = captureVideoFrame()
-    console.log('🖼️ Frame captured:', frameImage ? 'success' : 'failed')
 
     // Store captured image
     setCapturedImage(frameImage)
 
     // Save to database FIRST and wait for the result
-    console.log('💾 Saving metric to database...')
     const savedMetric = await captureOnce()
 
     if (savedMetric) {
-      console.log('✅ Metric saved to database:', {
-        emotion: savedMetric.emotion,
-        smile: savedMetric.smile_percentage,
-        age: savedMetric.age_estimate,
-        confidence: savedMetric.emotion_confidence
-      })
-
       // Use the actual saved metric from database
       setCapturedMetric(savedMetric)
-
-      // Just log the capture - metrics are displayed in the metrics panel
-      console.log('✅ Emotion captured and saved:', {
-        emotion: savedMetric.emotion,
-        smile: savedMetric.smile_percentage,
-        captureCount: capturedEmotions.length,
-        isFirstCapture
-      })
     } else {
       console.error('❌ Failed to save metric to database')
 
@@ -173,37 +154,12 @@ export default function Home() {
       } as Metric
 
       setCapturedMetric(fallbackMetric)
-      console.log('⚠️ Using fallback data (DB save failed)')
     }
   }, [analysis, capturedEmotions.length, captureOnce])
 
   // Check emotion stability and trigger capture for new emotions
   useEffect(() => {
-    console.log('🔄 Emotion capture effect running', {
-      faceDetected: analysis.face_detected,
-      emotion: analysis.emotion,
-      sessionId,
-      sessionLoading,
-      isReady
-    })
-
-    if (!isReady) {
-      console.log('⏸️ Countdown not finished - skipping capture check')
-      return
-    }
-
-    if (!analysis.face_detected) {
-      console.log('⏸️ No face detected - skipping capture check')
-      return
-    }
-
-    if (!analysis.emotion) {
-      console.log('⏸️ No emotion detected - skipping capture check')
-      return
-    }
-
-    if (!sessionId || sessionLoading) {
-      console.log('⏸️ Session not ready - skipping capture check', { sessionId, sessionLoading })
+    if (!isReady || !analysis.face_detected || !analysis.emotion || !sessionId || sessionLoading) {
       return
     }
 
@@ -218,7 +174,6 @@ export default function Home() {
       emotionHistoryRef.current.every(e => e === analysis.emotion)
 
     if (!isStable) {
-      console.log('⏳ Emotion not stable yet, history:', emotionHistoryRef.current)
       return // Wait for stability
     }
 
@@ -232,29 +187,10 @@ export default function Home() {
     const timeSinceLastCapture = now - lastCaptureTimeRef.current
     const cooldownPassed = timeSinceLastCapture > 1000 || lastCaptureTimeRef.current === 0
 
-    console.log('🔍 Emotion capture check:', {
-      emotion: analysis.emotion,
-      isStable,
-      isNewEmotion,
-      isEmotionChange,
-      lastCapturedEmotion: lastCapturedEmotionRef.current,
-      cooldownPassed,
-      timeSinceLastCapture,
-      capturedEmotions
-    })
-
     // Capture if: (1) it's a brand new emotion OR (2) emotion changed from last capture AND cooldown passed
     if ((isNewEmotion || isEmotionChange) && cooldownPassed) {
-      console.log('📸 Triggering emotion capture for:', analysis.emotion)
       lastCapturedEmotionRef.current = analysis.emotion // Update last captured emotion
       handleEmotionCapture()
-    } else {
-      if (!isNewEmotion && !isEmotionChange) {
-        console.log('⏭️ Same emotion as last capture, skipping')
-      }
-      if (!cooldownPassed) {
-        console.log('⏭️ Cooldown not passed yet, waiting...')
-      }
     }
   }, [analysis.face_detected, analysis.emotion, analysis.smile_percentage, analysis.emotion_confidence, sessionId, sessionLoading, isReady, handleEmotionCapture])
 
@@ -273,8 +209,6 @@ export default function Home() {
     // Reset captured data
     setCapturedMetric(null)
     setCapturedImage(null)
-
-    console.log('🔄 Ready to capture again - show different emotion')
   }
 
   const handleClosePopup = () => {

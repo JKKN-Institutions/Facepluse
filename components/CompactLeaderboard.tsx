@@ -34,10 +34,10 @@ function LeaderboardImage({ src, alt, size = 20 }: { src: string | null; alt: st
       <img
         src={src}
         alt={alt}
+        loading="lazy"
         className="w-full h-full object-cover"
         onLoad={() => setImageLoading(false)}
         onError={() => {
-          console.warn(`Failed to load leaderboard image: ${src}`)
           setImageError(true)
           setImageLoading(false)
         }}

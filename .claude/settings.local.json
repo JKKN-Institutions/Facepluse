@@ -15,7 +15,8 @@
       "Read(//c/Users/brabu/AppData/Local/claude-cli-nodejs/Cache/C--Users-brabu-Documents-GitHub-Facepluse/mcp-logs-supabase/**)",
       "Read(//c/Users/brabu/AppData/Local/claude-cli-nodejs/Cache/**)",
       "Bash(npx -y @supabase/mcp-server-supabase@latest --project-ref=gjgmjkapgtefuovmrydw --access-token=sbp_3fd9c6303ecf9593a8f26991d18d9b7eb504d68e)",
-      "WebSearch"
+      "WebSearch",
+      "mcp__supabase__list_tables"
     ],
     "deny": [],
     "ask": []
