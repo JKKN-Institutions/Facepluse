@@ -10,6 +10,43 @@ interface LeaderboardProps {
   entries?: LeaderboardEntry[]
 }
 
+// Leaderboard Image Component with Error Handling
+function LeaderboardImage({ src, alt, size = 10 }: { src: string | null; alt: string; size?: number }) {
+  const [imageError, setImageError] = useState(false)
+  const [imageLoading, setImageLoading] = useState(true)
+
+  // Show fallback if no URL or error occurred
+  if (!src || imageError) {
+    return (
+      <div className={`w-${size} h-${size} rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center border-2 border-emerald-200 shadow-sm shrink-0`}>
+        <span className="text-xl">😊</span>
+      </div>
+    )
+  }
+
+  return (
+    <div className={`relative w-${size} h-${size} rounded-full overflow-hidden border-2 border-emerald-200 shadow-sm shrink-0`}>
+      {/* Loading skeleton */}
+      {imageLoading && (
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 to-teal-50 animate-pulse" />
+      )}
+
+      {/* Actual image */}
+      <img
+        src={src}
+        alt={alt}
+        className="w-full h-full object-cover"
+        onLoad={() => setImageLoading(false)}
+        onError={() => {
+          console.warn(`Failed to load leaderboard image: ${src}`)
+          setImageError(true)
+          setImageLoading(false)
+        }}
+      />
+    </div>
+  )
+}
+
 export function Leaderboard({ entries = [] }: LeaderboardProps) {
   // Map Supabase entries to component format
   const leaderboard = useMemo(() => {
@@ -17,6 +54,7 @@ export function Leaderboard({ entries = [] }: LeaderboardProps) {
       id: entry.id,
       score: entry.smile_percentage,
       timestamp: entry.created_at,
+      screenshotUrl: entry.screenshot_url,
       isCurrentUser: false, // Could be enhanced with user tracking
     }))
   }, [entries])
@@ -142,6 +180,13 @@ export function Leaderboard({ entries = [] }: LeaderboardProps) {
                       >
                         {index + 1}
                       </motion.div>
+
+                      {/* Screenshot Image */}
+                      <LeaderboardImage
+                        src={entry.screenshotUrl}
+                        alt={`Rank ${index + 1}`}
+                        size={10}
+                      />
 
                       <div className="flex-1 min-w-0">
                         {/* Premium Score Bar - Responsive */}

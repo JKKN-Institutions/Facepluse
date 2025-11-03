@@ -16,6 +16,8 @@ export function useCamera() {
 
     async function initCamera() {
       try {
+        console.log('🎥 Requesting camera access...')
+
         // Set a 3-second timeout fallback to prevent infinite loading
         loadingTimeout = setTimeout(() => {
           if (mounted) {
@@ -51,6 +53,8 @@ export function useCamera() {
           throw new Error('No camera stream available')
         }
 
+        console.log('✅ Camera stream obtained')
+
         if (!mounted) {
           // Component unmounted during setup, cleanup and exit
           mediaStream.getTracks().forEach((track) => track.stop())
@@ -58,95 +62,12 @@ export function useCamera() {
           return
         }
 
-        // Attach stream to video element
-        if (videoRef.current) {
-          const video = videoRef.current
-          videoElement = video  // Store for cleanup
-          eventListenersAdded = true
-
-          // Guard to prevent multiple setLoading(false) calls
-          let loadingSetToFalse = false
-          const setLoadingFalse = () => {
-            if (!loadingSetToFalse && mounted) {
-              console.log('✅ Setting loading to false')
-              loadingSetToFalse = true
-              clearTimeout(loadingTimeout)
-              setLoading(false)
-            }
-          }
-
-          // Multiple event listeners for cross-browser compatibility
-          const handleLoadedData = () => {
-            console.log('📹 loadeddata event fired')
-            setLoadingFalse()
-          }
-
-          const handleCanPlay = () => {
-            console.log('📹 canplay event fired')
-            setLoadingFalse()
-          }
-
-          const handlePlaying = () => {
-            console.log('📹 playing event fired')
-            setLoadingFalse()
-          }
-
-          // Helper to check if video is already ready
-          const checkIfVideoReady = () => {
-            if (video.readyState >= 3 && video.videoWidth > 0 && video.videoHeight > 0) {
-              console.log('📹 Video already ready! readyState:', video.readyState, 'dimensions:', video.videoWidth, 'x', video.videoHeight)
-              setLoadingFalse()
-              return true
-            }
-            return false
-          }
-
-          // Set srcObject
-          video.srcObject = mediaStream
-
-          // Immediate check: Is video already ready?
-          if (!checkIfVideoReady()) {
-            console.log('⏳ Video not ready yet, adding event listeners...')
-
-            // Only add listeners if video is not already ready
-            video.addEventListener('loadeddata', handleLoadedData)
-            video.addEventListener('canplay', handleCanPlay)
-            video.addEventListener('playing', handlePlaying)
-          }
-
-          // Try to play the video
-          try {
-            await video.play()
-
-            // Manual check: If play succeeded and video has dimensions, force loading false
-            // This is a fallback in case none of the events fire reliably
-            setTimeout(() => {
-              if (mounted && video.videoWidth > 0 && video.videoHeight > 0) {
-                console.log('📹 Manual check: Video dimensions ready', video.videoWidth, 'x', video.videoHeight)
-                setLoadingFalse()
-              }
-            }, 100)
-
-            // Forced fallback: After 500ms, force loading to false regardless
-            // This prevents infinite loading if something unexpected happens
-            setTimeout(() => {
-              if (mounted && !loadingSetToFalse) {
-                console.log('⚡ Forced fallback triggered after 500ms')
-                setLoadingFalse()
-              }
-            }, 500)
-          } catch (err) {
-            console.error('Error playing video:', err)
-            // Still try to set loading false even if autoplay fails
-            setLoadingFalse()
-          }
-        } else {
-          // Video ref not available yet, set loading false anyway
-          clearTimeout(loadingTimeout)
-          setLoading(false)
-        }
-
+        // Store stream immediately (attachment will happen in separate useEffect)
         setStream(mediaStream)
+
+        // Stream obtained successfully - attachment happens in separate useEffect
+        clearTimeout(loadingTimeout)
+        setLoading(false)
       } catch (err) {
         console.error('Camera error:', err)
         if (mounted) {
@@ -170,6 +91,58 @@ export function useCamera() {
       }
     }
   }, [])
+
+  // Separate effect: Attach stream to video element when both are ready
+  useEffect(() => {
+    if (!stream || !videoRef.current) {
+      console.log('⏸️ Waiting for stream and video element:', {
+        hasStream: !!stream,
+        hasVideoRef: !!videoRef.current
+      })
+      return
+    }
+
+    console.log('📹 Attaching stream to video element...')
+    const video = videoRef.current
+
+    // Only set if not already set (prevents re-setting on re-renders)
+    if (video.srcObject !== stream) {
+      video.srcObject = stream
+
+      // Wait for metadata to load, then play
+      video.onloadedmetadata = () => {
+        console.log('📹 Video metadata loaded, attempting to play...')
+        video.play()
+          .then(() => {
+            console.log('✅ Video playing successfully:', {
+              readyState: video.readyState,
+              width: video.videoWidth,
+              height: video.videoHeight,
+              paused: video.paused
+            })
+          })
+          .catch(err => {
+            console.warn('⚠️ Autoplay blocked (this is normal):', err.message)
+            console.log('📺 Video will play when user interacts with the page')
+          })
+      }
+
+      // Fallback: If metadata already loaded, play immediately
+      if (video.readyState >= 2) {
+        console.log('📹 Video metadata already loaded, playing now...')
+        video.play().catch(err => {
+          console.warn('⚠️ Autoplay blocked:', err.message)
+        })
+      }
+    }
+
+    // Cleanup function
+    return () => {
+      if (video) {
+        video.onloadedmetadata = null
+      }
+    }
+  }, [stream])
 
   return { stream, error, loading, videoRef }
 }

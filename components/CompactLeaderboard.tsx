@@ -3,10 +3,47 @@
 import { motion } from 'framer-motion'
 import { Trophy } from 'lucide-react'
 import { LeaderboardEntry } from '@/lib/supabase/client'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 
 interface CompactLeaderboardProps {
   entries?: LeaderboardEntry[]
+}
+
+// Leaderboard Image Component with Error Handling
+function LeaderboardImage({ src, alt, size = 20 }: { src: string | null; alt: string; size?: number }) {
+  const [imageError, setImageError] = useState(false)
+  const [imageLoading, setImageLoading] = useState(true)
+
+  // Show fallback if no URL or error occurred
+  if (!src || imageError) {
+    return (
+      <div className={`w-${size} h-${size} rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center border-4 border-emerald-200 shadow-lg`}>
+        <span className="text-4xl">😊</span>
+      </div>
+    )
+  }
+
+  return (
+    <div className={`relative w-${size} h-${size} rounded-full overflow-hidden border-4 border-emerald-200 shadow-lg`}>
+      {/* Loading skeleton */}
+      {imageLoading && (
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 to-teal-50 animate-pulse" />
+      )}
+
+      {/* Actual image */}
+      <img
+        src={src}
+        alt={alt}
+        className="w-full h-full object-cover"
+        onLoad={() => setImageLoading(false)}
+        onError={() => {
+          console.warn(`Failed to load leaderboard image: ${src}`)
+          setImageError(true)
+          setImageLoading(false)
+        }}
+      />
+    </div>
+  )
 }
 
 export function CompactLeaderboard({ entries = [] }: CompactLeaderboardProps) {
@@ -82,24 +119,14 @@ export function CompactLeaderboard({ entries = [] }: CompactLeaderboardProps) {
                 <span className="text-xs font-bold text-gray-400">#{index + 1}</span>
               </div>
 
-              {/* Screenshot Image */}
-              {entry.screenshot_url ? (
-                <div className="flex justify-center mb-3">
-                  <div className="relative w-20 h-20 rounded-full overflow-hidden border-4 border-gradient-to-br from-emerald-200 to-teal-200 shadow-lg">
-                    <img
-                      src={entry.screenshot_url}
-                      alt={`Smile ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                </div>
-              ) : (
-                <div className="flex justify-center mb-3">
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center border-4 border-emerald-200 shadow-lg">
-                    <span className="text-4xl">😊</span>
-                  </div>
-                </div>
-              )}
+              {/* Screenshot Image with Error Handling */}
+              <div className="flex justify-center mb-3">
+                <LeaderboardImage
+                  src={entry.screenshot_url}
+                  alt={`Smile ${index + 1}`}
+                  size={20}
+                />
+              </div>
 
               {/* Score */}
               <div className="text-center mb-2">

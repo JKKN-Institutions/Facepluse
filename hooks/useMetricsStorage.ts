@@ -93,7 +93,22 @@ export function useMetricsStorage(
 
       // Update leaderboard if high smile
       if (analysis.smile_percentage >= 70) {
+        console.log('🏆 High smile detected! Adding to leaderboard...');
         const screenshot = captureFrame();
+
+        // Upload screenshot to Supabase Storage (same as metrics)
+        let screenshotUrl: string | null = null;
+
+        if (screenshot) {
+          console.log('📸 Uploading leaderboard screenshot...');
+          screenshotUrl = await uploadImage(screenshot, 'mood-captures');
+
+          if (screenshotUrl) {
+            console.log('✅ Leaderboard screenshot uploaded:', screenshotUrl);
+          } else {
+            console.warn('⚠️ Leaderboard screenshot upload failed, saving without image');
+          }
+        }
 
         const { error: leaderboardError } = await supabase
           .from('leaderboard')
@@ -101,11 +116,13 @@ export function useMetricsStorage(
             session_id: sessionId,
             smile_percentage: Math.round(analysis.smile_percentage),
             emotion: analysis.emotion,
-            screenshot_url: screenshot,
+            screenshot_url: screenshotUrl, // Now stores URL instead of base64
           });
 
         if (leaderboardError) {
           console.error('🟡 Leaderboard save failed (non-critical):', leaderboardError);
+        } else {
+          console.log('🟢 Leaderboard entry saved successfully!');
         }
       }
 

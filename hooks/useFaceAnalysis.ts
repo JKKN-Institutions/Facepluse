@@ -58,8 +58,10 @@ export function useFaceAnalysis(videoRef: RefObject<HTMLVideoElement | null>) {
       } catch (error) {
         console.error('❌ Error loading face-api.js models:', error)
         console.error('Make sure /public/models directory contains all required model files')
-        // Set modelsLoaded to true anyway to prevent blocking (face detection will fail gracefully)
-        setModelsLoaded(true)
+        console.error('Face detection will NOT work until models are loaded properly')
+        // DO NOT set modelsLoaded to true on error - let it stay false
+        // This prevents broken face detection from running
+        setModelsLoaded(false)
       }
     }
 
@@ -136,8 +138,21 @@ export function useFaceAnalysis(videoRef: RefObject<HTMLVideoElement | null>) {
     if (!modelsLoaded) return
 
     const checkForFace = setInterval(async () => {
-      if (!videoRef.current || videoRef.current.readyState < 3) return
-      if (countdownStartedRef.current) return // Countdown already started
+      const video = videoRef.current
+      if (!video) return
+
+      // Relax readyState requirement & add debugging
+      if (video.readyState < 2 || video.videoWidth === 0) {
+        console.log('⏸️ Video not ready for countdown check:', {
+          readyState: video.readyState,
+          width: video.videoWidth,
+          height: video.videoHeight
+        })
+        return
+      }
+
+      // Only skip if countdown already completed (not just started)
+      if (isReady) return
 
       try {
         // Quick face detection to trigger countdown
@@ -181,10 +196,25 @@ export function useFaceAnalysis(videoRef: RefObject<HTMLVideoElement | null>) {
 
   // Analyze face from video (only after countdown is complete)
   useEffect(() => {
-    if (!modelsLoaded || !isReady) return
+    if (!modelsLoaded || !isReady) {
+      console.log('⏸️ Analysis not ready:', { modelsLoaded, isReady })
+      return
+    }
 
     const interval = setInterval(async () => {
-      if (!videoRef.current || videoRef.current.readyState < 3) return
+      const video = videoRef.current
+      if (!video) return
+
+      // Relax readyState requirement & add debugging
+      if (video.readyState < 2 || video.videoWidth === 0) {
+        console.log('⏸️ Video not ready for analysis:', {
+          readyState: video.readyState,
+          width: video.videoWidth,
+          height: video.videoHeight,
+          paused: video.paused
+        })
+        return
+      }
 
       if (analyzing) {
         console.warn('⏩ Analysis still running, skipping frame')
