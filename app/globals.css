@@ -33,6 +33,31 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-poppins), -apple-system, BlinkMacSystemFont, sans-serif;
+  /* Enable GPU acceleration for smooth scrolling */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* GPU acceleration for scrollable containers */
+.overflow-y-auto, .overflow-x-auto, .overflow-auto {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: scroll-position;
+}
+
+/* Reduce animations on mobile for better performance */
+@media (max-width: 768px) {
+  .animate-float, .animate-pulse, .animate-bounce-subtle {
+    animation: none !important;
+  }
+}
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* Custom animations */
@@ -119,26 +144,38 @@ body {
 
 /* Premium utility classes */
 
-/* Glass morphism variants */
+/* Glass morphism variants - Optimized for mobile */
 .glass-default {
   background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
   border: 2px solid rgba(16, 185, 129, 0.2);
 }
 
 .glass-premium {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.7) 100%);
-  backdrop-filter: blur(32px) saturate(200%);
-  -webkit-backdrop-filter: blur(32px) saturate(200%);
   border: 2px solid rgba(16, 185, 129, 0.3);
 }
 
 .glass-subtle {
   background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(16px) saturate(150%);
-  -webkit-backdrop-filter: blur(16px) saturate(150%);
   border: 1px solid rgba(16, 185, 129, 0.15);
+}
+
+/* Add backdrop blur only on desktop for better mobile performance */
+@media (min-width: 768px) {
+  .glass-default {
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+  }
+
+  .glass-premium {
+    backdrop-filter: blur(32px) saturate(200%);
+    -webkit-backdrop-filter: blur(32px) saturate(200%);
+  }
+
+  .glass-subtle {
+    backdrop-filter: blur(16px) saturate(150%);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+  }
 }
 
 /* Gradient text */

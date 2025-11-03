@@ -294,9 +294,10 @@ export default function Home() {
           <div className="
             w-full lg:w-96
             flex-shrink-0
-            bg-gradient-to-br from-white/80 to-emerald-50/60 backdrop-blur-lg
+            bg-gradient-to-br from-white/95 to-emerald-50/80 md:from-white/80 md:to-emerald-50/60 md:backdrop-blur-lg
             border-t-2 lg:border-l-2 lg:border-t-0 border-emerald-200/50
             overflow-y-auto scrollbar-thin shadow-2xl
+            transform translate-z-0
             z-10
           ">
             <div className="p-4 md:p-6 space-y-3 md:space-y-4">

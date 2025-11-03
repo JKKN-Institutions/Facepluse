@@ -58,10 +58,14 @@ export function AnimatedEmotion({ emotion, confidence }: AnimatedEmotionProps) {
   const config = emotionConfig[emotion.toLowerCase() as keyof typeof emotionConfig] || emotionConfig.neutral
   const Icon = config.icon
 
-  // Generate particles on emotion change
+  // Generate particles on emotion change (reduced for mobile)
   useEffect(() => {
     if (confidence > 50) {
-      const newParticles = Array.from({ length: 8 }, (_, i) => ({
+      // Reduce particles on mobile for better performance
+      const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
+      const particleCount = isMobile ? 3 : 8
+
+      const newParticles = Array.from({ length: particleCount }, (_, i) => ({
         id: Date.now() + i,
         x: Math.random() * 200 - 100,
         y: Math.random() * 200 - 100,
@@ -113,8 +117,8 @@ export function AnimatedEmotion({ emotion, confidence }: AnimatedEmotionProps) {
               scale: 0
             }}
             animate={{
-              x: particle.x * (window.innerWidth < 768 ? 0.6 : 1),
-              y: particle.y * (window.innerWidth < 768 ? 0.6 : 1),
+              x: particle.x,
+              y: particle.y,
               opacity: 0,
               scale: 1.5,
               rotate: 360
